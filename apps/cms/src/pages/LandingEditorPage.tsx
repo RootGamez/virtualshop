@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { LandingConfig } from '@virtualshop/shared';
+import type { LandingConfig } from '@jaw/shared';
 import { useLanding } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
 import { api } from '../lib/api';

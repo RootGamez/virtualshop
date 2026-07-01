@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { RegisterEventInput } from '@virtualshop/shared';
+import type { RegisterEventInput } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import { badRequest } from '../lib/http-error';
 

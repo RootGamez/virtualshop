@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { CreateProductInput, ProductDetail } from '@virtualshop/shared';
+import type { CreateProductInput, ProductDetail } from '@jaw/shared';
 import { useCategories, useProductDetail } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
 import { api } from '../lib/api';

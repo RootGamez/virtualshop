@@ -1,5 +1,5 @@
 {
-  "name": "@virtualshop/api",
+  "name": "@jaw/api",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,7 +13,7 @@
     "create-owner": "tsx scripts/create-owner.ts"
   },
   "dependencies": {
-    "@virtualshop/shared": "workspace:*",
+    "@jaw/shared": "workspace:*",
     "hono": "^4.6.13"
   },
   "devDependencies": {

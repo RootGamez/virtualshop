@@ -1,4 +1,4 @@
-import type { Role } from '@virtualshop/shared';
+import type { Role } from '@jaw/shared';
 
 /** Bindings de Cloudflare declarados en wrangler.toml */
 export interface Bindings {

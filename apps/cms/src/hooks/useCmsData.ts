@@ -7,7 +7,7 @@ import type {
   ProductVariant,
   User,
   WhatsappConfig,
-} from '@virtualshop/shared';
+} from '@jaw/shared';
 import { api } from '../lib/api';
 import { useAsync } from './useAsync';
 

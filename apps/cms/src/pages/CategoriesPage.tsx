@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { Category, CreateCategoryInput } from '@virtualshop/shared';
+import type { Category, CreateCategoryInput } from '@jaw/shared';
 import { useCategories } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
 import { api } from '../lib/api';

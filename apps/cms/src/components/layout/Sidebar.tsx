@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { BRAND } from '@virtualshop/shared';
+import { BRAND } from '@jaw/shared';
 import { useSessionStore } from '../../store/sessionStore';
 
 const LINKS = [

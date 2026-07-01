@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { MediaType } from '@virtualshop/shared';
+import type { MediaType } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { MediaRow } from '../db/rows';
 import { mapMedia } from '../db/rows';

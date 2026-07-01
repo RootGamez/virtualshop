@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import type { Role } from '@virtualshop/shared';
+import type { Role } from '@jaw/shared';
 import { useSessionStore } from '../../store/sessionStore';
 
 /** Solo-owner (spec §6): usado para /usuarios. */

@@ -7,7 +7,7 @@ import {
   type PaginatedResult,
   type ProductDetail,
   type UpdateProductInput,
-} from '@virtualshop/shared';
+} from '@jaw/shared';
 import { slugify } from '../lib/slug';
 import type { AppEnv } from '../env';
 import type { CategoryRow, MediaRow, ProductRow, VariantRow } from '../db/rows';
@@ -170,7 +170,7 @@ productRoutes.delete('/:id', requireAuth, requireRole('owner', 'admin'), async (
 
 /**
  * El CMS ya resuelve la doble entrada de %/precio-final del lado del cliente
- * (con los helpers de @virtualshop/shared) y siempre manda discountType +
+ * (con los helpers de @jaw/shared) y siempre manda discountType +
  * discountValue normalizados. Aca solo se recalcula server-side para no
  * confiar en el final_price que mande el cliente.
  */

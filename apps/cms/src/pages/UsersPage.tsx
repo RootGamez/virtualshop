@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { Role } from '@virtualshop/shared';
+import type { Role } from '@jaw/shared';
 import { useUsers } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
 import { useSessionStore } from '../store/sessionStore';

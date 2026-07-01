@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import type { LoginResponse } from '@virtualshop/shared';
-import { BRAND } from '@virtualshop/shared';
+import type { LoginResponse } from '@jaw/shared';
+import { BRAND } from '@jaw/shared';
 import { api, ApiError } from '../lib/api';
 import { API_BASE_URL } from '../lib/env';
 import { useSessionStore } from '../store/sessionStore';

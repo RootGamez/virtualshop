@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import type { ProductMedia } from '@virtualshop/shared';
+import type { ProductMedia } from '@jaw/shared';
 import { useMutation } from '../../hooks/useMutation';
 import { api } from '../../lib/api';
 import { toastSuccess } from '../../store/toastStore';

@@ -4,7 +4,7 @@
  * para que el hash sea compatible con el login real.
  *
  * Uso:
- *   pnpm --filter @virtualshop/api exec tsx scripts/create-owner.ts <email> <password> <nombre>
+ *   pnpm --filter @jaw/api exec tsx scripts/create-owner.ts <email> <password> <nombre>
  *
  * Copiar el INSERT resultante y correrlo con:
  *   pnpm wrangler d1 execute virtualshop-db --local --command "<INSERT ...>"

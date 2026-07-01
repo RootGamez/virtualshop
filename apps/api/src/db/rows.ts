@@ -1,6 +1,6 @@
 /**
  * Filas tal cual las devuelve D1 (snake_case) y mappers a los tipos de dominio
- * (camelCase, en @virtualshop/shared). D1 no tiene ORM: se mapea a mano.
+ * (camelCase, en @jaw/shared). D1 no tiene ORM: se mapea a mano.
  */
 import type {
   AnalyticsEvent,
@@ -11,7 +11,7 @@ import type {
   ProductVariant,
   User,
   WhatsappConfig,
-} from '@virtualshop/shared';
+} from '@jaw/shared';
 
 export interface UserRow {
   id: number;

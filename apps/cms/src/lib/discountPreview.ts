@@ -1,4 +1,4 @@
-import { fromFinalPrice, fromPercent, noDiscount, type DiscountResult } from '@virtualshop/shared';
+import { fromFinalPrice, fromPercent, noDiscount, type DiscountResult } from '@jaw/shared';
 
 export type DiscountEntryMode = 'none' | 'percent' | 'finalPrice';
 

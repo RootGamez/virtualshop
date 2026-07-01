@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { CreateVariantInput, UpdateVariantInput } from '@virtualshop/shared';
+import type { CreateVariantInput, UpdateVariantInput } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { VariantRow } from '../db/rows';
 import { mapVariant } from '../db/rows';

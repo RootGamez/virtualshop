@@ -12,9 +12,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r --if-present run typecheck",
-    "dev:web": "pnpm --filter @virtualshop/web dev",
-    "dev:cms": "pnpm --filter @virtualshop/cms dev",
-    "dev:api": "pnpm --filter @virtualshop/api dev",
+    "dev:web": "pnpm --filter @jaw/web dev",
+    "dev:cms": "pnpm --filter @jaw/cms dev",
+    "dev:api": "pnpm --filter @jaw/api dev",
     "build": "pnpm -r --if-present run build"
   },
   "devDependencies": {

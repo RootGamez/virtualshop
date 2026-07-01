@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { Role } from '@virtualshop/shared';
+import type { Role } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { UserRow } from '../db/rows';
 import { mapUser } from '../db/rows';

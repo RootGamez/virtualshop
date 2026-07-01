@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Role } from '@virtualshop/shared';
+import type { Role } from '@jaw/shared';
 
 export interface SessionUser {
   id: number;

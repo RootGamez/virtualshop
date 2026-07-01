@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { CreateCategoryInput } from '@virtualshop/shared';
+import type { CreateCategoryInput } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { CategoryRow } from '../db/rows';
 import { mapCategory } from '../db/rows';

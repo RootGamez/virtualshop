@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { CreateVariantInput, ProductVariant } from '@virtualshop/shared';
+import type { CreateVariantInput, ProductVariant } from '@jaw/shared';
 import { useVariants } from '../../hooks/useCmsData';
 import { useMutation } from '../../hooks/useMutation';
 import { api } from '../../lib/api';

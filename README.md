@@ -1,8 +1,8 @@
-# VirtualShop
+# JAW Project
 
-> Nombre temporal — ver `PLAN.md` y `packages/shared/src/brand.ts` (un solo lugar para cambiarlo).
+> Marca configurable en un solo lugar: `packages/shared/src/brand.ts`. Paquetes bajo el scope `@jaw/*`.
 
-Tienda de ropa online: landing + catálogo público (pedido vía WhatsApp) y CMS de administración. Stack 100% Cloudflare (Pages + Workers + D1 + R2), monorepo con pnpm.
+Tienda de ropa importada (Venezuela): landing + catálogo público (pedido vía WhatsApp) y CMS de administración. UI con shadcn/ui, Tailwind v4, Motion y un hero 3D (Three.js). Stack 100% Cloudflare (Pages + Workers + D1 + R2), monorepo con pnpm.
 
 ```
 apps/

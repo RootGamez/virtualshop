@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from 'hono';
-import type { Role } from '@virtualshop/shared';
+import type { Role } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import { verifyToken } from '../lib/jwt';
 import { forbidden, unauthorized } from '../lib/http-error';
