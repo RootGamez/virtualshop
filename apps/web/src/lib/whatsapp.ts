@@ -1,4 +1,4 @@
-import { buildWhatsappLink, type Product, type WhatsappConfig } from '@virtualshop/shared';
+import { buildWhatsappLink, type Product, type WhatsappConfig } from '@jaw/shared';
 import { registerEvent } from './events';
 
 function formatPrice(value: number): string {

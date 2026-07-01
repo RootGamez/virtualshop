@@ -1,4 +1,4 @@
-import type { Product } from '@virtualshop/shared';
+import type { Product } from '@jaw/shared';
 import { ProductCard } from './ProductCard';
 import { ProductCardSkeleton } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';

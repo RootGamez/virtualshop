@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
-import type { ProductMedia } from '@virtualshop/shared';
+import { useState } from 'react';
+import type { ProductMedia } from '@jaw/shared';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '../ui/dialog';
 
 function mediaUrl(r2Key: string): string {
   const base = (import.meta.env.VITE_MEDIA_BASE_URL as string | undefined) ?? '';
@@ -13,67 +14,41 @@ interface MediaGalleryProps {
 }
 
 export function MediaGallery({ media, productName }: MediaGalleryProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (emblaApi) setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-  }, [emblaApi, onSelect]);
-
+  const [zoomed, setZoomed] = useState<ProductMedia | null>(null);
   if (media.length === 0) {
-    return (
-      <div className="aspect-square w-full rounded-xl bg-border" aria-label="Sin imágenes" />
-    );
+    return <div className="aspect-square w-full rounded-xl2 bg-muted" aria-label="Sin imágenes" />;
   }
-
   return (
-    <div>
-      <div ref={emblaRef} className="overflow-hidden rounded-xl">
-        <div className="flex">
+    <Dialog open={zoomed !== null} onOpenChange={(open) => !open && setZoomed(null)}>
+      <Carousel opts={{ loop: false }} className="relative">
+        <CarouselContent>
           {media.map((item, i) => (
-            <div key={item.id} className="relative aspect-square w-full shrink-0 bg-border">
-              {item.type === 'video' ? (
-                <video
-                  src={mediaUrl(item.r2Key)}
-                  controls
-                  className="h-full w-full object-cover"
-                  aria-label={`Video ${i + 1} de ${productName}`}
-                />
-              ) : (
-                <img
-                  src={mediaUrl(item.r2Key)}
-                  alt={`${productName} — imagen ${i + 1}`}
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  className="h-full w-full object-cover"
-                />
-              )}
-            </div>
+            <CarouselItem key={item.id} className="w-full">
+              <div className="relative aspect-square w-full overflow-hidden rounded-xl2 bg-muted">
+                {item.type === 'video' ? (
+                  <video src={mediaUrl(item.r2Key)} controls className="h-full w-full object-cover" aria-label={`Video ${i + 1} de ${productName}`} />
+                ) : (
+                  <DialogTrigger asChild>
+                    <button type="button" onClick={() => setZoomed(item)} className="h-full w-full cursor-zoom-in" aria-label={`Ampliar imagen ${i + 1} de ${productName}`}>
+                      <img src={mediaUrl(item.r2Key)} alt={`${productName} — imagen ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" />
+                    </button>
+                  </DialogTrigger>
+                )}
+              </div>
+            </CarouselItem>
           ))}
-        </div>
-      </div>
-      {media.length > 1 && (
-        <div className="mt-3 flex justify-center gap-2" role="tablist" aria-label="Miniaturas">
-          {media.map((item, i) => (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={i === selectedIndex}
-              aria-label={`Ver media ${i + 1}`}
-              onClick={() => emblaApi?.scrollTo(i)}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                i === selectedIndex ? 'bg-primary' : 'bg-border'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+        </CarouselContent>
+        {media.length > 1 && (
+          <>
+            <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2" />
+            <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2" />
+          </>
+        )}
+      </Carousel>
+      <DialogContent className="max-w-4xl">
+        <DialogTitle className="sr-only">{productName}</DialogTitle>
+        {zoomed && <img src={mediaUrl(zoomed.r2Key)} alt={productName} className="max-h-[80vh] w-full rounded-xl object-contain" />}
+      </DialogContent>
+    </Dialog>
   );
 }

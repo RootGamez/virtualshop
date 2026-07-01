@@ -1,4 +1,4 @@
-import type { EventType } from '@virtualshop/shared';
+import type { EventType } from '@jaw/shared';
 import { api } from './api';
 
 /**

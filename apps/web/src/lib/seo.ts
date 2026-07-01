@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BRAND } from '@virtualshop/shared';
+import { BRAND } from '@jaw/shared';
 
 /**
  * SEO básico sin dependencias externas (spec §12): título semántico + meta

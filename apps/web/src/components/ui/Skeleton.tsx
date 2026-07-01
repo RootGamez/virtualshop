@@ -1,5 +1,7 @@
+import { cn } from '../../lib/utils';
+
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-border ${className}`} aria-hidden="true" />;
+  return <div className={cn('animate-pulse rounded-lg bg-muted', className)} aria-hidden="true" />;
 }
 
 export function ProductCardSkeleton() {
