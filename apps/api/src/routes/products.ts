@@ -47,8 +47,27 @@ productRoutes.get('/', async (c) => {
     .bind(...params, pageSize, (page - 1) * pageSize)
     .all<ProductRow>();
 
+  // Imagen de portada por producto: la primera media (menor display_order) de cada uno.
+  const coverByProduct = new Map<number, string>();
+  const ids = results.map((r) => r.id);
+  if (ids.length > 0) {
+    const placeholders = ids.map(() => '?').join(',');
+    const { results: covers } = await c.env.DB.prepare(
+      `SELECT pm.product_id, pm.r2_key
+         FROM product_media pm
+        WHERE pm.product_id IN (${placeholders})
+          AND pm.display_order = (
+            SELECT MIN(display_order) FROM product_media
+             WHERE product_id = pm.product_id
+          )`,
+    )
+      .bind(...ids)
+      .all<{ product_id: number; r2_key: string }>();
+    for (const row of covers) coverByProduct.set(row.product_id, row.r2_key);
+  }
+
   const body: PaginatedResult<ReturnType<typeof mapProduct>> = {
-    items: results.map(mapProduct),
+    items: results.map((r) => ({ ...mapProduct(r), coverImageKey: coverByProduct.get(r.id) ?? null })),
     page,
     pageSize,
     total: countRow?.total ?? 0,

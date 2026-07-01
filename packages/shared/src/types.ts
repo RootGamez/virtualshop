@@ -36,6 +36,8 @@ export interface Product {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  /** Clave R2 de la imagen de portada (primera media). Se incluye en el listado del catálogo. */
+  coverImageKey?: string | null;
 }
 
 export interface ProductVariant {

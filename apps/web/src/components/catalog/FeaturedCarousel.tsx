@@ -11,18 +11,19 @@ export function FeaturedCarousel({ products }: FeaturedCarouselProps) {
   if (!products || products.length === 0) return null;
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <div className="flex items-end justify-between gap-4">
-        <SectionHeading eyebrow="Nuevo" title="Destacados" align="left" />
-        <div className="hidden gap-2 sm:flex">
-          <CarouselPrevious />
-          <CarouselNext />
+      {/* Los controles usan el contexto de <Carousel>, por eso van dentro de él. */}
+      <Carousel opts={{ align: 'start', dragFree: true }}>
+        <div className="flex items-end justify-between gap-4">
+          <SectionHeading eyebrow="Nuevo" title="Destacados" align="left" />
+          <div className="hidden gap-2 sm:flex">
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
         </div>
-      </div>
-      <Carousel opts={{ align: 'start', dragFree: true }} className="mt-8">
-        <CarouselContent>
+        <CarouselContent className="mt-8">
           {products.map((product) => (
             <CarouselItem key={product.id} className="w-[45%] sm:w-[30%] lg:w-[23%]">
-              <ProductCard product={product} />
+              <ProductCard product={product} coverImageKey={product.coverImageKey ?? undefined} />
             </CarouselItem>
           ))}
         </CarouselContent>

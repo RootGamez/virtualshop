@@ -53,6 +53,23 @@ productMediaRoutes.post('/:id/media', requireAuth, requireRole('owner', 'admin')
 
 export const mediaRoutes = new Hono<AppEnv>();
 
+/**
+ * Entrega pública de archivos guardados en R2 (spec §11). La clave puede tener
+ * barras (products/{id}/{uuid}.ext), por eso se captura con un comodín.
+ * Sin auth: las imágenes del catálogo son públicas.
+ */
+mediaRoutes.get('/:key{.+}', async (c) => {
+  const key = c.req.param('key');
+  const object = await c.env.MEDIA.get(key);
+  if (!object) throw notFound('Archivo no encontrado');
+
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set('etag', object.httpEtag);
+  headers.set('cache-control', 'public, max-age=31536000, immutable');
+  return new Response(object.body, { headers });
+});
+
 mediaRoutes.delete('/:id', requireAuth, requireRole('owner', 'admin'), async (c) => {
   const id = Number(c.req.param('id'));
   const media = await c.env.DB.prepare('SELECT * FROM product_media WHERE id = ?')
