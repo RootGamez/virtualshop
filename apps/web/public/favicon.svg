@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="16" fill="#0c0c0c"/>
+  <text x="50%" y="50%" dy="2" text-anchor="middle" dominant-baseline="middle" font-family="'Comic Sans MS', cursive" font-weight="700" font-size="30">
+    <tspan fill="#dd2d4a">J</tspan><tspan fill="#ea9010">A</tspan><tspan fill="#69dc9e">W</tspan>
+  </text>
+</svg>

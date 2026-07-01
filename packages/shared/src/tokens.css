@@ -1,63 +1,171 @@
 /*
- * Design tokens (spec §7). Fuente única compartida por apps/web y apps/cms
- * (importado como '@virtualshop/shared/tokens.css'). Paleta base -> variables
- * semánticas -> theme de Tailwind v4.
- * REGLA: ningún componente escribe un hex directamente, siempre vía clase
- * generada acá (bg-primary, text-accent, etc.) o var(--color-*) en CSS.
+ * Design tokens — JAW Project.
+ * Fuente única compartida por apps/web y apps/cms.
+ * Cadena: paleta base -> variables semánticas (:root) -> @theme de Tailwind v4.
+ * REGLA: ningún componente escribe un hex directamente.
  */
-@theme {
-  /* Paleta base */
-  --color-onyx: #0c0c0c;
-  --color-raspberry: #dd2d4a;
-  --color-emerald: #69dc9e;
-  --color-carrot: #ea9010;
 
-  /* Tokens semánticos consumidos por componentes (bg-primary, text-success, etc.) */
-  --color-bg: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-dark: var(--color-onyx);
-  --color-primary: var(--color-raspberry);
-  --color-primary-foreground: #ffffff;
-  --color-success: var(--color-emerald);
-  --color-success-foreground: var(--color-onyx);
-  --color-accent: var(--color-carrot);
-  --color-accent-foreground: #ffffff;
-  --color-text: var(--color-onyx);
-  --color-text-muted: #6b6b6b;
-  --color-text-inverse: #ffffff;
-  --color-border: #e7e5e4;
+:root {
+  --onyx: #0c0c0c;
+  --raspberry: #dd2d4a;
+  --emerald: #69dc9e;
+  --carrot: #ea9010;
+  --white: #ffffff;
 
-  --font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --raspberry-strong: #b81f38;
+  --raspberry-soft: #fde3e8;
+  --emerald-strong: #34c47c;
+  --emerald-soft: #e0f8ec;
+  --carrot-strong: #cf7a00;
+  --carrot-soft: #fdedd4;
+
+  --bg: var(--white);
+  --surface: var(--white);
+  --surface-2: #fbf7f4;
+  --surface-dark: var(--onyx);
+  --card: var(--white);
+  --card-foreground: var(--onyx);
+  --popover: var(--white);
+  --popover-foreground: var(--onyx);
+
+  --text: var(--onyx);
+  --text-muted: #6b6b6b;
+  --text-inverse: var(--white);
+  --border: #ece7e3;
+  --input: #ece7e3;
+
+  --primary: var(--raspberry);
+  --primary-foreground: var(--white);
+  --secondary: var(--emerald);
+  --secondary-foreground: var(--onyx);
+  --success: var(--emerald);
+  --success-foreground: var(--onyx);
+  --accent: var(--carrot);
+  --accent-foreground: var(--white);
+  --destructive: var(--raspberry-strong);
+  --destructive-foreground: var(--white);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
+  --ring: var(--raspberry);
+
+  --radius: 0.9rem;
+
+  --gradient-hero: linear-gradient(135deg, #0c0c0c 0%, #2a0e17 45%, #dd2d4a 100%);
+  --gradient-cta: linear-gradient(90deg, #dd2d4a 0%, #ea9010 100%);
+  --gradient-fresh: linear-gradient(120deg, #69dc9e 0%, #ea9010 100%);
+  --gradient-party: linear-gradient(135deg, #dd2d4a 0%, #ea9010 50%, #69dc9e 100%);
+}
+
+.dark {
+  --bg: var(--onyx);
+  --surface: #161113;
+  --surface-2: #1e1619;
+  --card: #161113;
+  --card-foreground: var(--white);
+  --popover: #161113;
+  --popover-foreground: var(--white);
+  --text: var(--white);
+  --text-muted: #a8a2a5;
+  --text-inverse: var(--onyx);
+  --border: #2a2124;
+  --input: #2a2124;
+  --muted: #1e1619;
+  --muted-foreground: #a8a2a5;
+  --primary-foreground: var(--white);
+  --secondary-foreground: var(--onyx);
+  --ring: var(--raspberry);
+}
+
+@theme inline {
+  --color-onyx: var(--onyx);
+  --color-raspberry: var(--raspberry);
+  --color-emerald: var(--emerald);
+  --color-carrot: var(--carrot);
+  --color-white: var(--white);
+
+  --color-bg: var(--bg);
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-dark: var(--surface-dark);
+  --color-foreground: var(--text);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+  --color-border: var(--border);
+  --color-input: var(--input);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-ring: var(--ring);
+
+  --color-raspberry-soft: var(--raspberry-soft);
+  --color-emerald-soft: var(--emerald-soft);
+  --color-carrot-soft: var(--carrot-soft);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl2: calc(var(--radius) + 12px);
+
+  --shadow-glow: 0 10px 40px -8px #dd2d4a66;
+  --shadow-glow-emerald: 0 10px 40px -8px #69dc9e66;
+  --shadow-glow-accent: 0 10px 40px -8px #ea901066;
+
+  --font-display: 'Comic Shanns', 'Comic Sans MS', ui-rounded, cursive;
+  --font-sans: 'Nunito', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-wiggle: wiggle 0.6s ease-in-out;
 
   @keyframes fade-up {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
   }
 }
 
-/* Terreno preparado para dark mode (spec §7.3) — no activado todavía. */
-.dark {
-  --color-bg: var(--color-onyx);
-  --color-surface: #171717;
-  --color-text: #ffffff;
-  --color-text-muted: #a3a3a3;
-  --color-text-inverse: var(--color-onyx);
-  --color-border: #262626;
+@layer components {
+  .bg-gradient-hero { background-image: var(--gradient-hero); }
+  .bg-gradient-cta { background-image: var(--gradient-cta); }
+  .bg-gradient-fresh { background-image: var(--gradient-fresh); }
+  .bg-gradient-party { background-image: var(--gradient-party); }
+  .text-gradient-party {
+    background-image: var(--gradient-party);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .font-display { font-family: var(--font-display); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -71,7 +179,6 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Foco visible consistente para navegación por teclado (a11y, spec §12) */
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;

@@ -4,15 +4,13 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    port: 5173,
-  },
+  server: { port: 5173 },
   build: {
-    // Catálogo mobile-first: mantener bundles chicos, separar vendor pesado.
     rollupOptions: {
       output: {
         manualChunks: {
           motion: ['motion'],
+          three: ['three', '@react-three/fiber', '@react-three/drei'],
           carousel: ['embla-carousel-react'],
         },
       },
