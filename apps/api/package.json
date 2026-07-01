@@ -4,13 +4,22 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "echo \"Fase 2 pendiente: wrangler dev\" && exit 0",
-    "typecheck": "echo \"Fase 2 pendiente\" && exit 0"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "db:migrations:apply:local": "wrangler d1 migrations apply virtualshop-db --local",
+    "db:migrations:apply:remote": "wrangler d1 migrations apply virtualshop-db --remote",
+    "db:seed:local": "wrangler d1 execute virtualshop-db --local --file=./seed.sql",
+    "create-owner": "tsx scripts/create-owner.ts"
   },
   "dependencies": {
-    "@virtualshop/shared": "workspace:*"
+    "@virtualshop/shared": "workspace:*",
+    "hono": "^4.6.13"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.91.0"
   }
 }

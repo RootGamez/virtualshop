@@ -1,0 +1,4 @@
+JWT_SECRET=cambia-esto-por-un-secreto-largo-y-random
+
+# Copiar a .dev.vars (gitignoreado) para desarrollo local con `wrangler dev`.
+# En producción usar: pnpm wrangler secret put JWT_SECRET

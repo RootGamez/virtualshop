@@ -1,0 +1,23 @@
+name = "virtualshop-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Reemplazar database_id tras correr:
+#   pnpm wrangler d1 create virtualshop-db
+[[d1_databases]]
+binding = "DB"
+database_name = "virtualshop-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# Reemplazar bucket_name tras correr:
+#   pnpm wrangler r2 bucket create virtualshop-media
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "virtualshop-media"
+
+[vars]
+# JWT_SECRET real va como secret, NO acá:
+#   pnpm wrangler secret put JWT_SECRET
+ENVIRONMENT = "development"

@@ -28,6 +28,16 @@ export function noDiscount(price: number): DiscountResult {
   return { discountType: null, discountValue: null, finalPrice: round2(price) };
 }
 
+/**
+ * Monto fijo de descuento (ej. -$20). No es uno de los dos modos de entrada
+ * descritos en §10 (que siempre persisten como 'percent'), pero el modelo de
+ * datos reserva 'fixed' para este caso de uso futuro.
+ */
+export function fromFixedAmount(price: number, amountOff: number): DiscountResult {
+  const finalPrice = round2(Math.max(0, price - amountOff));
+  return { discountType: 'fixed', discountValue: round2(amountOff), finalPrice };
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
