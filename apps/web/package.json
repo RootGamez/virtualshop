@@ -4,14 +4,28 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "echo \"Fase 3 pendiente: vite dev\" && exit 0",
-    "build": "echo \"Fase 3 pendiente: vite build\" && exit 0",
-    "typecheck": "echo \"Fase 3 pendiente\" && exit 0"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@virtualshop/shared": "workspace:*"
+    "@virtualshop/shared": "workspace:*",
+    "embla-carousel-react": "^8.5.1",
+    "lenis": "^1.1.18",
+    "motion": "^11.15.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.2",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
   }
 }
