@@ -1,3 +1,10 @@
 # @virtualshop/web
 
-Tienda pública (React + TS + Vite → Cloudflare Pages). Pendiente de implementar en la **Fase 3** del plan (ver `/PLAN.md` en la raíz del repo): landing, catálogo, detalle de producto, flujo de pedido por WhatsApp.
+Tienda pública (React + TS + Vite + Tailwind v4 → Cloudflare Pages). Ver `/PLAN.md` en la raíz.
+
+## Setup local
+
+```bash
+cp .env.example .env
+# VITE_API_BASE_URL apuntando a apps/api corriendo local (pnpm dev:api)
+p
