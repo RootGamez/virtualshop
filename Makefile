@@ -14,7 +14,14 @@
 # Despliegue (ver README.md para la guía completa paso a paso):
 #   make cf-login -> db-create -> r2-create -> secrets -> db-migrate-remote -> deploy-api
 
-SHELL := /bin/bash
+# En Windows, make usa cmd.exe por defecto sin importar desde qué terminal se
+# invoque (PowerShell, cmd o Git Bash). Forzamos el bash real de Git for Windows
+# para que las recetas (cp, test, trap, etc.) funcionen igual en todos lados.
+ifeq ($(OS),Windows_NT)
+	SHELL := C:/Program Files/Git/bin/bash.exe
+else
+	SHELL := /bin/bash
+endif
 .ONESHELL:
 .SHELLFLAGS := -eu -o pipefail -c
 MAKEFLAGS += --no-print-directory
@@ -139,8 +146,4 @@ build-web: ## Compila la tienda pública para producción (dist/)
 	cd $(WEB_DIR) && pnpm build
 
 build-cms: ## Compila el panel admin para producción (dist/)
-	cd $(CMS_DIR) && pnpm build
-
-deploy: deploy-api build-web build-cms ## Despliega la API y compila web+cms (Pages se conecta por Git, ver README)
-	echo "API desplegada. apps/web y apps/cms quedaron compiladas y verificadas en dist/."
-	echo "Pages las despliega automáticamente vía integración con GitHub (ver README.md §Despliegue)."
+	cd $(CMS_DIR) && pn
