@@ -1,0 +1,17 @@
+{
+  "name": "@virtualshop/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "echo \"Fase 3 pendiente: vite dev\" && exit 0",
+    "build": "echo \"Fase 3 pendiente: vite build\" && exit 0",
+    "typecheck": "echo \"Fase 3 pendiente\" && exit 0"
+  },
+  "dependencies": {
+    "@virtualshop/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
