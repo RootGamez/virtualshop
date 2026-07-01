@@ -58,8 +58,13 @@ productRoutes.get('/', async (c) => {
 
 productRoutes.get('/:slug', async (c) => {
   const slug = c.req.param('slug');
-  const product = await c.env.DB.prepare('SELECT * FROM products WHERE slug = ?')
-    .bind(slug)
+  // El CMS reusa esta misma ruta para cargar por id numerico (ediciones via /productos/:id);
+  // el publico siempre entra por slug.
+  const isNumericId = /^\d+$/.test(slug);
+  const product = await c.env.DB.prepare(
+    isNumericId ? 'SELECT * FROM products WHERE id = ?' : 'SELECT * FROM products WHERE slug = ?',
+  )
+    .bind(isNumericId ? Number(slug) : slug)
     .first<ProductRow>();
   if (!product) throw notFound('Producto no encontrado');
 
