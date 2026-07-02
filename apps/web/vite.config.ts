@@ -10,7 +10,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           motion: ['motion'],
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
           carousel: ['embla-carousel-react'],
         },
       },

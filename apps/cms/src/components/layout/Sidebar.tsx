@@ -16,7 +16,11 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-full w-56 shrink-0 flex-col border-r border-border bg-surface-dark p-4 text-text-inverse">
-      <p className="mb-6 text-lg font-bold">{BRAND.name} · Admin</p>
+      <div className="mb-6 flex items-center gap-2">
+        <img src="/logo.svg" alt="" width="992" height="456" className="h-8 w-auto" />
+        <span className="text-sm font-bold text-text-inverse/80">Admin</span>
+        <span className="sr-only">{BRAND.name}</span>
+      </div>
       <nav aria-label="Navegación de administración" className="flex flex-1 flex-col gap-1">
         {LINKS.map((link) => (
           <NavLink

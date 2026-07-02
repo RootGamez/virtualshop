@@ -54,10 +54,13 @@ export function LoginPage() {
         className="w-full max-w-sm rounded-xl bg-surface p-6 shadow-lg"
         aria-labelledby="login-title"
       >
-        <h1 id="login-title" className="text-lg font-bold text-text">
+        <div className="mx-auto w-fit rounded-xl bg-surface-dark px-5 py-3">
+          <img src="/logo.svg" alt="" width="992" height="456" className="h-12 w-auto" />
+        </div>
+        <h1 id="login-title" className="mt-3 text-center text-lg font-bold text-text">
           {BRAND.name} · Admin
         </h1>
-        <p className="mt-1 text-sm text-text-muted">Iniciá sesión para gestionar la tienda.</p>
+        <p className="mt-1 text-center text-sm text-text-muted">Iniciá sesión para gestionar la tienda.</p>
 
         <div className="mt-6 flex flex-col gap-4">
           <TextField

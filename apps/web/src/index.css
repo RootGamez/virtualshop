@@ -2,7 +2,21 @@
 @import 'tw-animate-css';
 @import '@jaw/shared/tokens.css';
 
-html { scroll-behavior: smooth; }
+/*
+ * OJO: no usar `scroll-behavior: smooth` global — rompe Lenis (lo documenta
+ * su propio README) y con él todas las animaciones ligadas al scroll.
+ * El smooth scroll lo aporta Lenis; los anchors los maneja `anchors: true`.
+ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
 
 ::selection {
   background-color: var(--lime);

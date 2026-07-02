@@ -19,14 +19,16 @@ function navClass(isActive: boolean) {
 }
 
 function Wordmark() {
+  // Logo oficial (SVG, variante sin fondo). El alt queda vacío porque el
+  // Link padre ya tiene aria-label con el nombre de la marca.
   return (
-    <span className="flex items-baseline gap-1.5">
-      <span className="font-display text-2xl font-bold uppercase leading-none text-lime">
-        {BRAND.shortName}
-        <span className="align-super text-[0.5rem]">®</span>
-      </span>
-      <span className="text-xs font-semibold lowercase tracking-[0.35em] text-bone/70">project</span>
-    </span>
+    <img
+      src="/logo.svg"
+      alt=""
+      width="992"
+      height="456"
+      className="h-10 w-auto sm:h-11"
+    />
   );
 }
 
