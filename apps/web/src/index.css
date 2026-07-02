@@ -2,19 +2,38 @@
 @import 'tw-animate-css';
 @import '@jaw/shared/tokens.css';
 
-@font-face {
-  font-family: 'Comic Shanns';
-  src: url('/fonts/ComicMono.woff2') format('woff2'), url('/fonts/ComicMono.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Comic Shanns';
-  src: url('/fonts/ComicMono-Bold.woff2') format('woff2'), url('/fonts/ComicMono-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+html { scroll-behavior: smooth; }
+
+::selection {
+  background-color: var(--lime);
+  color: var(--forest);
 }
 
-html { scroll-behavior: smooth; }
+/*
+ * Utilidades de textura — el "no queremos fondos planos" de la marca.
+ * Todas son CSS/SVG inline: cero requests extra, funcionan offline.
+ */
+@layer utilities {
+  /* Grano de película sobre cualquier sección (usar en el contenedor relative) */
+  .texture-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Trama de puntos halftone (hereda currentColor) */
+  .texture-halftone {
+    background-image: radial-gradient(currentColor 1px, transparent 1.6px);
+    background-size: 14px 14px;
+  }
+
+  /* Foto en duotono: colocar dentro de un contenedor con bg de marca */
+  .img-duotone {
+    filter: grayscale(1) contrast(1.15) brightness(0.95);
+    mix-blend-mode: luminosity;
+  }
+}

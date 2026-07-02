@@ -14,7 +14,7 @@ export function FeaturedCarousel({ products }: FeaturedCarouselProps) {
       {/* Los controles usan el contexto de <Carousel>, por eso van dentro de él. */}
       <Carousel opts={{ align: 'start', dragFree: true }}>
         <div className="flex items-end justify-between gap-4">
-          <SectionHeading eyebrow="Nuevo" title="Destacados" align="left" />
+          <SectionHeading eyebrow="Recién llegado" title="Últimos drops" align="left" />
           <div className="hidden gap-2 sm:flex">
             <CarouselPrevious />
             <CarouselNext />
