@@ -1,24 +1,33 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import { BRAND } from '@jaw/shared';
 import { Button } from '../ui/button';
+import { PaintSplat, SprayDots } from '../ui/PaintDecor';
 
 export function CtaSection() {
   return (
-    <section className="px-4 py-20 sm:px-6">
+    <section className="texture-grain relative overflow-hidden bg-gradient-cta px-4 py-24 sm:px-6">
+      <PaintSplat aria-hidden="true" className="absolute -right-20 -top-16 w-72 rotate-45 text-forest/15" />
+      <PaintSplat aria-hidden="true" className="absolute -bottom-20 -left-16 w-60 -rotate-12 text-sky/40" />
+      <SprayDots aria-hidden="true" className="absolute left-[15%] top-[20%] w-24 text-forest/30" />
+
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
+        initial={{ opacity: 0, scale: 0.97 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative mx-auto max-w-4xl overflow-hidden rounded-xl2 bg-gradient-party p-10 text-center shadow-glow sm:p-16"
+        className="relative z-[2] mx-auto max-w-3xl text-center"
       >
-        <span className="absolute -left-8 -top-8 size-40 rounded-full bg-white/20 blur-2xl" />
-        <span className="absolute -bottom-10 -right-6 size-48 rounded-full bg-white/15 blur-2xl" />
-        <h2 className="relative font-display text-3xl font-bold text-white sm:text-5xl">¿Lista para brillar?</h2>
-        <p className="relative mx-auto mt-3 max-w-md text-white/90">Descubrí toda la ropa importada de JAW Project y pedí por WhatsApp en un click.</p>
-        <div className="relative mt-8">
-          <Button asChild size="lg" className="bg-white text-onyx hover:bg-white/90">
+        <h2 className="font-display text-4xl font-bold uppercase leading-[0.95] text-forest sm:text-6xl">
+          Únete al <span className="text-outline-forest">project</span>
+          <span className="align-super text-xl" aria-hidden="true">®</span>
+        </h2>
+        <p className="mx-auto mt-5 max-w-md text-base font-medium text-forest/80 sm:text-lg">
+          Ropa importada, precios claros y pedidos por WhatsApp en un click. Desde {BRAND.location.split(',')[0]} para todo el país.
+        </p>
+        <div className="mt-9">
+          <Button asChild size="lg" variant="primary">
             <Link to="/catalogo">Ver todo el catálogo<ArrowRight /></Link>
           </Button>
         </div>

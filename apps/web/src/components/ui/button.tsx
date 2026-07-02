@@ -4,15 +4,23 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-bold font-display transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-bold font-display uppercase tracking-wide transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 active:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-foreground shadow-glow hover:brightness-110 hover:-translate-y-0.5',
-        accent: 'bg-accent text-accent-foreground shadow-glow-accent hover:brightness-110 hover:-translate-y-0.5',
-        secondary: 'bg-secondary text-secondary-foreground shadow-glow-emerald hover:brightness-105 hover:-translate-y-0.5',
-        party: 'bg-gradient-party text-white shadow-glow hover:brightness-110 hover:-translate-y-0.5',
-        outline: 'border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground',
+        /* Forest sobre claro, texto lime — botón "premium" */
+        primary:
+          'bg-primary text-primary-foreground shadow-sticker-lime hover:-translate-y-0.5 hover:brightness-110',
+        /* Lime eléctrico con offset forest — CTA principal estilo sticker */
+        accent:
+          'bg-accent text-accent-foreground border-2 border-forest shadow-sticker hover:-translate-y-0.5 hover:brightness-105',
+        secondary:
+          'bg-secondary text-secondary-foreground border-2 border-forest shadow-sticker hover:-translate-y-0.5',
+        /* Alias legacy: degradado lime→sky */
+        party:
+          'bg-gradient-party text-forest border-2 border-forest shadow-sticker hover:-translate-y-0.5 hover:brightness-105',
+        outline:
+          'border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground',
         ghost: 'text-text hover:bg-muted',
         link: 'text-primary underline-offset-4 hover:underline',
       },
