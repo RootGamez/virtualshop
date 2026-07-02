@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Pencil, Trash2, X } from 'lucide-react';
 import type { Category, CreateCategoryInput } from '@jaw/shared';
 import { useCategories } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
@@ -7,6 +8,7 @@ import { slugify } from '../lib/slug';
 import { toastSuccess } from '../store/toastStore';
 import { TextField } from '../components/ui/FormField';
 import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/card';
 import { TableSkeleton } from '../components/ui/Skeleton';
 import { ErrorState } from '../components/ui/ErrorState';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -46,69 +48,79 @@ export function CategoriesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="text-xl font-bold text-text">Categorías</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-text">Categorías</h1>
+        <p className="text-sm text-text-muted">Organizá tu catálogo por secciones.</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="mt-4 flex items-end gap-3">
-        <div className="flex-1">
-          <TextField
-            label={editing ? `Editando "${editing.name}"` : 'Nueva categoría'}
-            name="name"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <Button type="submit" loading={saving}>
-          {editing ? 'Guardar' : 'Agregar'}
-        </Button>
-        {editing && (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              setEditing(null);
-              setName('');
-            }}
-          >
-            Cancelar
+      <Card className="p-4">
+        <form onSubmit={handleSubmit} className="flex items-end gap-3">
+          <div className="flex-1">
+            <TextField
+              label={editing ? `Editando "${editing.name}"` : 'Nueva categoría'}
+              name="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <Button type="submit" loading={saving}>
+            {editing ? 'Guardar' : 'Agregar'}
           </Button>
-        )}
-      </form>
+          {editing && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setEditing(null);
+                setName('');
+              }}
+            >
+              <X className="size-4" />
+              Cancelar
+            </Button>
+          )}
+        </form>
+      </Card>
 
-      <div className="mt-6">
+      <div>
         {loading && <TableSkeleton />}
         {error && <ErrorState message={error} onRetry={refetch} />}
         {!loading && !error && categories && categories.length === 0 && (
           <EmptyState title="Todavía no hay categorías" description="Agregá la primera arriba." />
         )}
         {!loading && !error && categories && categories.length > 0 && (
-          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+          <ul className="flex flex-col gap-2">
             {categories.map((category) => (
-              <li key={category.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-text">{category.name}</p>
-                  <p className="text-xs text-text-muted">/{category.slug}</p>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditing(category);
-                      setName(category.name);
-                    }}
-                    className="text-sm font-medium text-text hover:text-primary"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(category.id)}
-                    className="text-sm font-medium text-primary hover:underline"
-                  >
-                    Eliminar
-                  </button>
-                </div>
+              <li key={category.id}>
+                <Card className="flex-row items-center justify-between p-3">
+                  <div>
+                    <p className="text-sm font-semibold text-text">{category.name}</p>
+                    <p className="text-xs text-text-muted">/{category.slug}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditing(category);
+                        setName(category.name);
+                      }}
+                      aria-label={`Editar ${category.name}`}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(category.id)}
+                      aria-label={`Eliminar ${category.name}`}
+                      className="rounded-lg p-2 text-text-muted transition-colors hover:text-destructive"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
+                </Card>
               </li>
             ))}
           </ul>

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Trash2, UserPlus } from 'lucide-react';
 import type { Role } from '@jaw/shared';
 import { useUsers } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
@@ -7,6 +8,8 @@ import { api } from '../lib/api';
 import { toastSuccess } from '../store/toastStore';
 import { TextField, SelectField } from '../components/ui/FormField';
 import { Button } from '../components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import { TableSkeleton } from '../components/ui/Skeleton';
 import { ErrorState } from '../components/ui/ErrorState';
 
@@ -48,62 +51,77 @@ export function UsersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="text-xl font-bold text-text">Usuarios</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-text">Usuarios</h1>
+        <p className="text-sm text-text-muted">Administradores con acceso al panel.</p>
+      </div>
 
-      <div className="mt-6">
+      <div>
         {loading && <TableSkeleton />}
         {error && <ErrorState message={error} onRetry={refetch} />}
         {!loading && !error && users && (
-          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+          <ul className="flex flex-col gap-2">
             {users.map((user) => (
-              <li key={user.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-text">
-                    {user.name} · <span className="text-text-muted">{user.email}</span>
-                  </p>
-                  <p className="text-xs uppercase text-text-muted">{user.role}</p>
-                </div>
-                {user.id !== currentUser?.id && (
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(user.id)}
-                    className="text-sm font-medium text-primary hover:underline"
-                  >
-                    Eliminar
-                  </button>
-                )}
+              <li key={user.id}>
+                <Card className="flex-row items-center justify-between p-3">
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-sm font-semibold text-text">
+                      {user.name} <span className="font-normal text-text-muted">· {user.email}</span>
+                    </p>
+                    <Badge variant={user.role === 'owner' ? 'primary' : 'outline'} className="w-fit">
+                      {user.role}
+                    </Badge>
+                  </div>
+                  {user.id !== currentUser?.id && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(user.id)}
+                      aria-label={`Eliminar ${user.name}`}
+                      className="rounded-lg p-2 text-text-muted transition-colors hover:text-destructive"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  )}
+                </Card>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-3 border-t border-border pt-6">
-        <h2 className="text-sm font-semibold text-text">Nuevo admin</h2>
-        <TextField label="Nombre" required value={name} onChange={(e) => setName(e.target.value)} />
-        <TextField
-          label="Email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          label="Contraseña"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <SelectField label="Rol" value={role} onChange={(e) => setRole(e.target.value as Role)}>
-          <option value="admin">Admin</option>
-          <option value="owner">Owner</option>
-        </SelectField>
-        <Button type="submit" loading={creating} className="self-start">
-          Crear usuario
-        </Button>
-      </form>
+      <Card>
+        <CardHeader className="flex-row items-center gap-2">
+          <UserPlus className="size-5 text-primary" />
+          <CardTitle>Nuevo admin</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <TextField label="Nombre" required value={name} onChange={(e) => setName(e.target.value)} />
+            <TextField
+              label="Email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+              label="Contraseña"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <SelectField label="Rol" value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <option value="admin">Admin</option>
+              <option value="owner">Owner</option>
+            </SelectField>
+            <Button type="submit" loading={creating} className="self-start">
+              Crear usuario
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

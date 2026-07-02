@@ -1,64 +1,103 @@
+import type { ComponentType } from 'react';
 import { NavLink } from 'react-router-dom';
+import {
+  BarChart3,
+  LayoutTemplate,
+  LogOut,
+  MessageCircle,
+  Package,
+  Tags,
+  Users,
+} from 'lucide-react';
 import { BRAND } from '@jaw/shared';
 import { useSessionStore } from '../../store/sessionStore';
+import { cn } from '../../lib/utils';
 
-const LINKS = [
-  { to: '/', label: 'Productos', end: true },
-  { to: '/categorias', label: 'Categorías', end: false },
-  { to: '/landing', label: 'Landing', end: false },
-  { to: '/whatsapp', label: 'WhatsApp', end: false },
-  { to: '/reportes', label: 'Reportes', end: false },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  end: boolean;
+  ownerOnly?: boolean;
+}
+
+const LINKS: NavItem[] = [
+  { to: '/', label: 'Productos', icon: Package, end: true },
+  { to: '/categorias', label: 'Categorías', icon: Tags, end: false },
+  { to: '/landing', label: 'Landing', icon: LayoutTemplate, end: false },
+  { to: '/whatsapp', label: 'WhatsApp', icon: MessageCircle, end: false },
+  { to: '/reportes', label: 'Reportes', icon: BarChart3, end: false },
+  { to: '/usuarios', label: 'Usuarios', icon: Users, end: false, ownerOnly: true },
 ];
 
-export function Sidebar() {
+interface SidebarBodyProps {
+  /** Modo colapsado (solo iconos). Nunca colapsa dentro del drawer móvil. */
+  collapsed?: boolean;
+  /** Se llama al navegar (para cerrar el drawer en móvil). */
+  onNavigate?: () => void;
+}
+
+/**
+ * Contenido del sidebar, reutilizado tanto por el aside fijo de escritorio como
+ * por el drawer móvil (Sheet). El look oscuro "forest" da el contraste de un
+ * panel de administración profesional frente al contenido claro.
+ */
+export function SidebarBody({ collapsed = false, onNavigate }: SidebarBodyProps) {
   const user = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
 
+  const visibleLinks = LINKS.filter((link) => !link.ownerOnly || user?.role === 'owner');
+
   return (
-    <aside className="flex h-full w-56 shrink-0 flex-col border-r border-border bg-surface-dark p-4 text-text-inverse">
-      <div className="mb-6 flex items-center gap-2">
-        <img src="/logo.svg" alt="" width="992" height="456" className="h-8 w-auto" />
-        <span className="text-sm font-bold text-text-inverse/80">Admin</span>
+    <div className="flex h-full flex-col">
+      <div className={cn('mb-6 flex items-center gap-2', collapsed && 'justify-center')}>
+        <img src="/logo.svg" alt="" width="992" height="456" className="h-8 w-auto shrink-0" />
+        {!collapsed && <span className="text-sm font-bold text-text-inverse/80">Admin</span>}
         <span className="sr-only">{BRAND.name}</span>
       </div>
+
       <nav aria-label="Navegación de administración" className="flex flex-1 flex-col gap-1">
-        {LINKS.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            className={({ isActive }) =>
-              `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isActive ? 'bg-primary text-primary-foreground' : 'text-text-inverse/80 hover:bg-white/10'
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-        {user?.role === 'owner' && (
-          <NavLink
-            to="/usuarios"
-            className={({ isActive }) =>
-              `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isActive ? 'bg-primary text-primary-foreground' : 'text-text-inverse/80 hover:bg-white/10'
-              }`
-            }
-          >
-            Usuarios
-          </NavLink>
-        )}
+        {visibleLinks.map((link) => {
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              onClick={onNavigate}
+              title={collapsed ? link.label : undefined}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                  collapsed && 'justify-center px-0',
+                  isActive
+                    ? 'bg-primary text-primary-foreground shadow-sticker-lime'
+                    : 'text-text-inverse/80 hover:bg-white/10 hover:text-text-inverse'
+                )
+              }
+            >
+              <Icon className="size-5 shrink-0" />
+              {!collapsed && <span>{link.label}</span>}
+            </NavLink>
+          );
+        })}
       </nav>
+
       <div className="mt-4 border-t border-white/10 pt-4">
-        <p className="truncate text-xs text-text-inverse/60">{user?.email}</p>
+        {!collapsed && <p className="truncate text-xs text-text-inverse/60">{user?.email}</p>}
         <button
           type="button"
           onClick={logout}
-          className="mt-2 text-sm font-medium text-text-inverse/80 hover:text-primary"
+          title={collapsed ? 'Cerrar sesión' : undefined}
+          className={cn(
+            'mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-text-inverse/80 transition-colors hover:bg-white/10 hover:text-primary',
+            collapsed && 'justify-center px-0'
+          )}
         >
-          Cerrar sesión
+          <LogOut className="size-4 shrink-0" />
+          {!collapsed && <span>Cerrar sesión</span>}
         </button>
       </div>
-    </aside>
+    </div>
   );
 }

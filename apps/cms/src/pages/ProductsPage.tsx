@@ -1,40 +1,55 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
+import type { Product } from '@jaw/shared';
 import { useCategories, useProducts } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
 import { api } from '../lib/api';
 import { toastSuccess } from '../store/toastStore';
+import { cn } from '../lib/utils';
 import { Button } from '../components/ui/Button';
-import { TableSkeleton } from '../components/ui/Skeleton';
+import { Skeleton } from '../components/ui/Skeleton';
 import { ErrorState } from '../components/ui/ErrorState';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ProductAdminCard } from '../components/products/ProductAdminCard';
 
 export function ProductsPage() {
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
   const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { data: categories } = useCategories();
   const { data: result, loading, error, refetch } = useProducts({ categoryId, page });
   const { mutate: remove } = useMutation((id: number) => api.delete(`/products/${id}`));
 
-  async function handleDelete(id: number, name: string) {
-    if (!window.confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
-    const res = await remove(id);
+  async function handleDelete(product: Product) {
+    if (!window.confirm(`¿Eliminar "${product.name}"? Esta acción no se puede deshacer.`)) return;
+    setDeletingId(product.id);
+    const res = await remove(product.id);
+    setDeletingId(null);
     if (res !== undefined) {
       toastSuccess('Producto eliminado');
       refetch();
     }
   }
 
+  const totalPages = result ? Math.ceil(result.total / result.pageSize) : 1;
+
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-bold text-text">Productos</h1>
-        <Link to="/productos/nuevo">
-          <Button type="button">+ Nuevo producto</Button>
-        </Link>
+        <div>
+          <h1 className="font-display text-2xl font-bold text-text">Productos</h1>
+          <p className="text-sm text-text-muted">Gestioná tu catálogo y su stock.</p>
+        </div>
+        <Button asChild variant="accent">
+          <Link to="/productos/nuevo">
+            <Plus className="size-4" />
+            Nuevo producto
+          </Link>
+        </Button>
       </div>
 
-      <div className="mt-4 flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         <FilterChip label="Todas" active={categoryId === undefined} onClick={() => setCategoryId(undefined)} />
         {categories?.map((c) => (
           <FilterChip
@@ -46,81 +61,43 @@ export function ProductsPage() {
         ))}
       </div>
 
-      <div className="mt-6">
-        {loading && <TableSkeleton rows={6} />}
+      <div>
+        {loading && (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 8 }, (_, i) => (
+              <Skeleton key={`skeleton-${i}`} className="aspect-[3/4] w-full rounded-xl2" />
+            ))}
+          </div>
+        )}
         {error && <ErrorState message={error} onRetry={refetch} />}
         {!loading && !error && result && result.items.length === 0 && (
           <EmptyState title="No hay productos" description="Creá el primero con el botón de arriba." />
         )}
         {!loading && !error && result && result.items.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-surface text-xs uppercase text-text-muted">
-                <tr>
-                  <th className="px-4 py-3">Nombre</th>
-                  <th className="px-4 py-3">Precio</th>
-                  <th className="px-4 py-3">Estado</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {result.items.map((product) => (
-                  <tr key={product.id}>
-                    <td className="px-4 py-3 font-medium text-text">{product.name}</td>
-                    <td className="px-4 py-3 text-text">
-                      {product.discountType ? (
-                        <>
-                          <span className="text-text-muted line-through">${product.price}</span>{' '}
-                          <span className="font-semibold">${product.finalPrice}</span>
-                        </>
-                      ) : (
-                        <span>${product.price}</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          product.isActive
-                            ? 'bg-success/20 text-success-foreground'
-                            : 'bg-border text-text-muted'
-                        }`}
-                      >
-                        {product.isActive ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to={`/productos/${product.id}`}
-                        className="mr-3 text-sm font-medium text-text hover:text-primary"
-                      >
-                        Editar
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(product.id, product.name)}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {result.items.map((product) => (
+              <ProductAdminCard
+                key={product.id}
+                product={product}
+                onDelete={handleDelete}
+                deleting={deletingId === product.id}
+              />
+            ))}
           </div>
         )}
 
         {result && result.total > result.pageSize && (
-          <div className="mt-4 flex items-center justify-center gap-4">
-            <Button variant="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
               Anterior
             </Button>
             <span className="text-sm text-text-muted">
-              Página {result.page} de {Math.ceil(result.total / result.pageSize)}
+              Página {result.page} de {totalPages}
             </span>
             <Button
               variant="secondary"
-              disabled={page >= Math.ceil(result.total / result.pageSize)}
+              size="sm"
+              disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
               Siguiente
@@ -138,11 +115,12 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+      className={cn(
+        'shrink-0 rounded-full border-2 px-4 py-1.5 text-sm font-bold font-display uppercase tracking-wide transition-all active:scale-95',
         active
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-border text-text hover:border-primary'
-      }`}
+          ? 'border-forest bg-primary text-primary-foreground shadow-sticker-lime'
+          : 'border-border bg-surface text-text hover:border-forest'
+      )}
     >
       {label}
     </button>
