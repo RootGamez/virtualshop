@@ -4,6 +4,7 @@ import { useLanding } from '../hooks/useCmsData';
 import { useMutation } from '../hooks/useMutation';
 import { api } from '../lib/api';
 import { toastSuccess } from '../store/toastStore';
+import { CatalogSectionsEditor } from '../components/landing/CatalogSectionsEditor';
 import { TextField, TextAreaField } from '../components/ui/FormField';
 import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -45,6 +46,7 @@ export function LandingEditorPage() {
       <HeroForm section={hero} onSaved={refetch} />
       <AboutForm section={about} onSaved={refetch} />
       <SocialForm section={social} onSaved={refetch} />
+      <CatalogSectionsEditor sections={sections} onSaved={refetch} />
     </div>
   );
 }
