@@ -26,3 +26,23 @@ remote = true
 # JWT_SECRET real va como secret, NO acá:
 #   pnpm wrangler secret put JWT_SECRET
 ENVIRONMENT = "development"
+# CORS: en producción, descomentar y poner los dominios reales de web y cms.
+# En development (ENVIRONMENT="development") se permiten localhost:5173/5174 automáticamente.
+# WEB_ORIGIN = "https://tienda.tudominio.com"
+# CMS_ORIGIN = "https://admin.tudominio.com"
+
+# Rate limiting nativo de Cloudflare (period solo admite 10 o 60 segundos).
+# namespace_id debe ser único por limitador dentro de la cuenta.
+# LOGIN_LIMITER: frena fuerza bruta en /api/auth/login (10 intentos/min por IP).
+[[unsafe.bindings]]
+name = "LOGIN_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
+
+# EVENTS_LIMITER: frena flood de /api/events (público) — 60 eventos/min por IP.
+[[unsafe.bindings]]
+name = "EVENTS_LIMITER"
+type = "ratelimit"
+namespace_id = "1002"
+simple = { limit = 60, period = 60 }

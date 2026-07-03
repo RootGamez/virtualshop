@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import type { AppEnv } from './env';
+import type { AppEnv, Bindings } from './env';
 import { HttpError } from './lib/http-error';
 
 import { authRoutes } from './routes/auth';
@@ -16,14 +16,29 @@ import { reportRoutes } from './routes/reports';
 
 const app = new Hono<AppEnv>().basePath('/api');
 
-app.use(
-  '*',
+/**
+ * Orígenes permitidos por CORS. En producción se toman de WEB_ORIGIN/CMS_ORIGIN
+ * (vars de wrangler). En desarrollo se agregan los puertos locales de web y cms.
+ */
+function allowedOrigins(env: Bindings): string[] {
+  const list: string[] = [];
+  if (env.WEB_ORIGIN) list.push(env.WEB_ORIGIN);
+  if (env.CMS_ORIGIN) list.push(env.CMS_ORIGIN);
+  if (env.ENVIRONMENT === 'development') {
+    list.push('http://localhost:5173', 'http://localhost:5174');
+  }
+  return list;
+}
+
+app.use('*', (c, next) =>
   cors({
-    // TODO: restringir a los dominios reales de apps/web y apps/cms antes de producción.
-    origin: '*',
+    origin: (origin) => {
+      const allowed = allowedOrigins(c.env);
+      return allowed.includes(origin) ? origin : null;
+    },
     allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
-  }),
+  })(c, next),
 );
 
 app.route('/auth', authRoutes);

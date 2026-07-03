@@ -12,7 +12,7 @@ import { slugify } from '../lib/slug';
 import type { AppEnv } from '../env';
 import type { CategoryRow, MediaRow, ProductRow, VariantRow } from '../db/rows';
 import { mapMedia, mapProduct, mapVariant } from '../db/rows';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { authenticate, requireAuth, requireRole } from '../middleware/auth';
 import { badRequest, conflict, notFound } from '../lib/http-error';
 
 export const productRoutes = new Hono<AppEnv>();
@@ -80,11 +80,21 @@ productRoutes.get('/:slug', async (c) => {
   // El CMS reusa esta misma ruta para cargar por id numerico (ediciones via /productos/:id);
   // el publico siempre entra por slug.
   const isNumericId = /^\d+$/.test(slug);
-  const product = await c.env.DB.prepare(
-    isNumericId ? 'SELECT * FROM products WHERE id = ?' : 'SELECT * FROM products WHERE slug = ?',
-  )
-    .bind(isNumericId ? Number(slug) : slug)
-    .first<ProductRow>();
+
+  let product: ProductRow | null;
+  if (isNumericId) {
+    // Acceso por id numérico = edición desde el CMS: exige auth y permite ver
+    // productos inactivos (borradores). Sin token, 401.
+    await authenticate(c);
+    product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?')
+      .bind(Number(slug))
+      .first<ProductRow>();
+  } else {
+    // Acceso público por slug: solo productos activos, para no filtrar borradores.
+    product = await c.env.DB.prepare('SELECT * FROM products WHERE slug = ? AND is_active = 1')
+      .bind(slug)
+      .first<ProductRow>();
+  }
   if (!product) throw notFound('Producto no encontrado');
 
   const [{ results: variants }, { results: media }, category] = await Promise.all([
@@ -182,8 +192,21 @@ productRoutes.patch('/:id', requireAuth, requireRole('owner', 'admin'), async (c
 
 productRoutes.delete('/:id', requireAuth, requireRole('owner', 'admin'), async (c) => {
   const id = Number(c.req.param('id'));
+
+  // Recolectar las claves R2 ANTES de borrar el producto, para poder limpiar el
+  // bucket (las filas de product_media caen por CASCADE, los objetos R2 no).
+  const { results: media } = await c.env.DB.prepare(
+    'SELECT r2_key FROM product_media WHERE product_id = ?',
+  )
+    .bind(id)
+    .all<{ r2_key: string }>();
+
   const result = await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
   if (result.meta.changes === 0) throw notFound('Producto no encontrado');
+
+  // Borrado explícito de los objetos R2 huérfanos para no acumular almacenamiento facturable.
+  await Promise.all(media.map((m) => c.env.MEDIA.delete(m.r2_key)));
+
   return c.body(null, 204);
 });
 

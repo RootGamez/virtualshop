@@ -7,10 +7,12 @@ import { verifyPassword } from '../lib/password';
 import { signToken } from '../lib/jwt';
 import { badRequest, unauthorized } from '../lib/http-error';
 import { requireAuth } from '../middleware/auth';
+import { rateLimit } from '../middleware/rate-limit';
 
 export const authRoutes = new Hono<AppEnv>();
 
-authRoutes.post('/login', async (c) => {
+// Rate limit por IP para frenar fuerza bruta / credential stuffing en el login.
+authRoutes.post('/login', rateLimit((env) => env.LOGIN_LIMITER), async (c) => {
   const body = await c.req.json<LoginRequest>();
   if (!body?.email || !body?.password) throw badRequest('email y password son requeridos');
 
