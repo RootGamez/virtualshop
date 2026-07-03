@@ -6,6 +6,13 @@
 const ITERATIONS = 100_000;
 const HASH_BITS = 256;
 
+/**
+ * Hash dummy con el mismo costo (iteraciones) que uno real. Se usa en el login
+ * cuando el email no existe: verificar siempre corre PBKDF2 con la misma latencia
+ * para que no se pueda enumerar qué cuentas existen midiendo el tiempo de respuesta.
+ */
+export const DUMMY_PASSWORD_HASH = `pbkdf2:${ITERATIONS}:AAAAAAAAAAAAAAAAAAAAAA==:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=`;
+
 export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const hashBytes = await deriveBits(password, salt, ITERATIONS);

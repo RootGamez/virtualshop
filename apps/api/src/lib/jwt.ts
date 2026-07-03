@@ -1,7 +1,7 @@
 import { sign, verify } from 'hono/jwt';
 import type { AuthUser } from '../env';
 
-const EXPIRY_SECONDS = 60 * 60 * 24 * 7; // 7 dias
+const EXPIRY_SECONDS = 60 * 60 * 24; // 1 dia (la revalidación de rol vive en el middleware de auth)
 const ALG = 'HS256';
 
 export interface JwtPayload extends AuthUser {

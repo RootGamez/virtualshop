@@ -94,8 +94,11 @@ mediaRoutes.delete('/:id', requireAuth, requireRole('owner', 'admin'), async (c)
     .first<MediaRow>();
   if (!media) throw notFound('Media no encontrada');
 
-  await c.env.MEDIA.delete(media.r2_key);
+  // Se borra primero la fila D1 y luego el objeto R2: si el segundo paso falla,
+  // queda un objeto huérfano (facturable pero inofensivo) en vez de una fila
+  // apuntando a un archivo inexistente (imagen rota en el catálogo).
   await c.env.DB.prepare('DELETE FROM product_media WHERE id = ?').bind(id).run();
+  await c.env.MEDIA.delete(media.r2_key);
   return c.body(null, 204);
 });
 

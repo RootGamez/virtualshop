@@ -1,7 +1,8 @@
 import type { Context, MiddlewareHandler } from 'hono';
 import type { Role } from '@jaw/shared';
 import type { AppEnv, AuthUser } from '../env';
-import { verifyToken } from '../lib/jwt';
+import type { UserRow } from '../db/rows';
+import { verifyToken, type JwtPayload } from '../lib/jwt';
 import { forbidden, unauthorized } from '../lib/http-error';
 
 /**
@@ -14,12 +15,21 @@ export async function authenticate(c: Context<AppEnv>): Promise<AuthUser> {
   if (!header?.startsWith('Bearer ')) throw unauthorized();
 
   const token = header.slice('Bearer '.length);
+  let payload: JwtPayload;
   try {
-    const payload = await verifyToken(token, c.env.JWT_SECRET);
-    return { id: payload.id, email: payload.email, role: payload.role };
+    payload = await verifyToken(token, c.env.JWT_SECRET);
   } catch {
     throw unauthorized('Token inválido o expirado');
   }
+
+  // Revalidación contra la DB: un usuario borrado o con el rol cambiado deja de
+  // ser válido al instante, sin esperar a que expire el token. El rol se toma de
+  // la fila (fuente de verdad), no del payload, para no confiar en un token viejo.
+  const row = await c.env.DB.prepare('SELECT id, email, role FROM users WHERE id = ?')
+    .bind(payload.id)
+    .first<Pick<UserRow, 'id' | 'email' | 'role'>>();
+  if (!row) throw unauthorized('La sesión ya no es válida');
+  return { id: row.id, email: row.email, role: row.role };
 }
 
 /** Exige un JWT válido y adjunta el usuario en c.var.user */
