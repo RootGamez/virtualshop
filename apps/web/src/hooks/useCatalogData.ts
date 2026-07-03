@@ -1,5 +1,6 @@
 import type {
   Category,
+  CategorySection,
   LandingConfig,
   PaginatedResult,
   Product,
@@ -11,6 +12,11 @@ import { useAsync } from './useAsync';
 
 export function useCategories() {
   return useAsync<Category[]>(() => api.get('/categories'), []);
+}
+
+/** Catálogo por secciones: categorías con una muestra de sus productos activos. */
+export function useCatalogSections() {
+  return useAsync<CategorySection[]>(() => api.get('/categories/sections'), []);
 }
 
 export function useProducts(params: { categoryId?: number; search?: string; page?: number }) {

@@ -2,11 +2,7 @@ import { useState } from 'react';
 import type { ProductMedia } from '@jaw/shared';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '../ui/dialog';
-
-function mediaUrl(r2Key: string): string {
-  const base = (import.meta.env.VITE_MEDIA_BASE_URL as string | undefined) ?? '';
-  return `${base}/${r2Key}`;
-}
+import { mediaUrl } from '../../lib/media';
 
 interface MediaGalleryProps {
   media: ProductMedia[];

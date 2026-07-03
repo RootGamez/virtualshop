@@ -1,23 +1,42 @@
-import { useCatalogStore } from '../store/catalogStore';
-import { useCategories, useProducts } from '../hooks/useCatalogData';
+import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import type { Category } from '@jaw/shared';
+import { BRAND } from '@jaw/shared';
+import { useCatalogSections, useCategories, useProducts } from '../hooks/useCatalogData';
 import { CategoryFilter } from '../components/catalog/CategoryFilter';
+import { CategoryBanner } from '../components/catalog/CategoryBanner';
+import { CatalogSection } from '../components/catalog/CatalogSection';
 import { ProductGrid } from '../components/catalog/ProductGrid';
 import { Pagination } from '../components/catalog/Pagination';
 import { ErrorState } from '../components/ui/ErrorState';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton, ProductCardSkeleton } from '../components/ui/Skeleton';
 import { usePageMeta } from '../lib/seo';
 import { PaintSplat } from '../components/ui/PaintDecor';
-import { BRAND } from '@jaw/shared';
 
+/**
+ * Catálogo público. Dos modos según ?categoria={slug}:
+ * - Sin filtro: secciones apiladas por categoría (banner animado + muestra).
+ * - Con filtro: banner de la categoría + grid completo paginado.
+ * La URL es la fuente de verdad del filtro (los links de la landing y los
+ * "Ver todo" de cada sección entran por acá).
+ */
 export function CatalogPage() {
-  usePageMeta('Catálogo', `Explora todas las piezas importadas de ${BRAND.name}.`);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const slug = searchParams.get('categoria');
 
-  const { categoryId, page, setCategory, setPage } = useCatalogStore();
   const { data: categories } = useCategories();
-  const {
-    data: result,
-    loading,
-    error,
-  } = useProducts({ categoryId, page });
+  const activeCategory = slug ? categories?.find((c) => c.slug === slug) : undefined;
+
+  usePageMeta(
+    activeCategory ? activeCategory.name : 'Catálogo',
+    `Explora todas las piezas importadas de ${BRAND.name}.`,
+  );
+
+  function handleCategoryChange(categoryId: number | undefined) {
+    const target = categoryId ? categories?.find((c) => c.id === categoryId) : undefined;
+    setSearchParams(target ? { categoria: target.slug } : {});
+  }
 
   return (
     <>
@@ -35,26 +54,89 @@ export function CatalogPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <CategoryFilter categories={categories} activeCategoryId={categoryId} onChange={setCategory} />
+        <CategoryFilter
+          categories={categories}
+          activeCategoryId={activeCategory?.id}
+          onChange={handleCategoryChange}
+        />
 
         <div className="mt-6">
-          {error ? (
-            <ErrorState message={error} />
+          {activeCategory ? (
+            // key: al cambiar de categoría se remonta y la paginación vuelve a 1
+            <FilteredCatalog key={activeCategory.id} category={activeCategory} />
           ) : (
-            <>
-              <ProductGrid products={result?.items} loading={loading} />
-              {result && (
-                <Pagination
-                  page={result.page}
-                  pageSize={result.pageSize}
-                  total={result.total}
-                  onChange={setPage}
-                />
-              )}
-            </>
+            <SectionedCatalog />
           )}
         </div>
       </div>
     </>
+  );
+}
+
+/** Modo secciones: todas las categorías con banner + muestra de productos. */
+function SectionedCatalog() {
+  const { data: sections, loading, error } = useCatalogSections();
+
+  if (error) return <ErrorState message={error} />;
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-12">
+        {Array.from({ length: 3 }, (_, i) => (
+          <div key={`section-skeleton-${i}`} className="flex flex-col gap-4">
+            <Skeleton className="aspect-[5/2] w-full rounded-xl2 sm:aspect-[3/1]" />
+            <div className="scrollbar-none flex gap-4 overflow-x-hidden">
+              {Array.from({ length: 4 }, (_, j) => (
+                <div key={`card-skeleton-${j}`} className="w-40 shrink-0 sm:w-52">
+                  <ProductCardSkeleton />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (!sections || sections.length === 0) {
+    return (
+      <EmptyState
+        title="No encontramos productos"
+        description="Proba con otra categoria o busqueda."
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-12">
+      {sections.map((section, index) => (
+        <CatalogSection key={section.category.id} section={section} index={index} />
+      ))}
+    </div>
+  );
+}
+
+/** Modo filtrado: banner de la categoría activa + grid completo paginado. */
+function FilteredCatalog({ category }: { category: Category }) {
+  const [page, setPage] = useState(1);
+  const { data: result, loading, error } = useProducts({ categoryId: category.id, page });
+
+  return (
+    <div className="flex flex-col gap-6">
+      <CategoryBanner category={category} />
+      {error ? (
+        <ErrorState message={error} />
+      ) : (
+        <div>
+          <ProductGrid products={result?.items} loading={loading} />
+          {result && (
+            <Pagination
+              page={result.page}
+              pageSize={result.pageSize}
+              total={result.total}
+              onChange={setPage}
+            />
+          )}
+        </div>
+      )}
+    </div>
   );
 }

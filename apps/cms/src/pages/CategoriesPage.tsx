@@ -6,6 +6,7 @@ import { useMutation } from '../hooks/useMutation';
 import { api } from '../lib/api';
 import { slugify } from '../lib/slug';
 import { toastSuccess } from '../store/toastStore';
+import { CategoryBannerControl } from '../components/categories/CategoryBannerControl';
 import { TextField } from '../components/ui/FormField';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/card';
@@ -99,7 +100,9 @@ export function CategoriesPage() {
                     <p className="text-sm font-semibold text-text">{category.name}</p>
                     <p className="text-xs text-text-muted">/{category.slug}</p>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-3">
+                    <CategoryBannerControl category={category} onChange={refetch} />
+                    <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -119,6 +122,7 @@ export function CategoriesPage() {
                     >
                       <Trash2 className="size-4" />
                     </button>
+                    </div>
                   </div>
                 </Card>
               </li>

@@ -2,13 +2,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import type { Product } from '@jaw/shared';
 import { formatPrice } from '../../lib/whatsapp';
+import { mediaUrl } from '../../lib/media';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
-
-function mediaUrl(r2Key: string): string {
-  const base = (import.meta.env.VITE_MEDIA_BASE_URL as string | undefined) ?? '';
-  return `${base}/${r2Key}`;
-}
 
 interface ProductCardProps {
   product: Product;
