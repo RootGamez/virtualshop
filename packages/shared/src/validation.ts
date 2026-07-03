@@ -88,6 +88,10 @@ export const updateVariantSchema = z.object({
   stock: z.number().int().min(0).optional(),
 });
 
+export const mediaOrderSchema = z.object({
+  displayOrder: z.number().int().min(0, 'displayOrder no puede ser negativo'),
+});
+
 export const registerEventSchema = z.object({
   productId: z.number().int().positive('productId inválido'),
   type: z.enum(['view', 'order_click']),
