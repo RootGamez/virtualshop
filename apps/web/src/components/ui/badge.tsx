@@ -12,6 +12,8 @@ const badgeVariants = cva(
         accent: 'bg-accent text-accent-foreground border-2 border-forest',
         sky: 'bg-secondary text-secondary-foreground border-2 border-forest',
         success: 'bg-success text-success-foreground',
+        /* Urgencia (stock bajo): rojo de alerta + borde forest, look sticker */
+        destructive: 'bg-destructive text-destructive-foreground border-2 border-forest',
         muted: 'bg-muted text-muted-foreground',
         outline: 'border-2 border-border text-text',
       },

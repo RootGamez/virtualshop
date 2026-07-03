@@ -43,7 +43,8 @@ export function useVariants(productId: number | undefined) {
 }
 
 export function useLanding() {
-  return useAsync<LandingConfig[]>(() => api.get('/landing'), []);
+  // /all: incluye secciones inactivas, para poder reactivarlas desde el editor.
+  return useAsync<LandingConfig[]>(() => api.get('/landing/all'), []);
 }
 
 export function useWhatsappConfig() {

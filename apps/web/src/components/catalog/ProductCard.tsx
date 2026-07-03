@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import type { Product } from '@jaw/shared';
@@ -9,11 +10,13 @@ import { Badge } from '../ui/badge';
 interface ProductCardProps {
   product: Product;
   coverImageKey?: string;
+  /** Badge de merchandising (NUEVO, urgencia…), esquina superior derecha. */
+  badge?: ReactNode;
 }
 
 const MotionCard = motion.create(Card);
 
-export function ProductCard({ product, coverImageKey }: ProductCardProps) {
+export function ProductCard({ product, coverImageKey, badge }: ProductCardProps) {
   const hasDiscount = product.discountType != null && product.finalPrice < product.price;
   return (
     <MotionCard
@@ -42,6 +45,7 @@ export function ProductCard({ product, coverImageKey }: ProductCardProps) {
           {hasDiscount && (
             <Badge variant="accent" className="absolute left-2 top-2 -rotate-3">-{product.discountValue}%</Badge>
           )}
+          {badge && <div className="absolute right-2 top-2 rotate-2">{badge}</div>}
           {!product.isActive && (
             <span className="absolute inset-0 flex items-center justify-center bg-forest/80 font-display text-sm font-bold uppercase tracking-widest text-bone">
               Agotado

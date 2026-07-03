@@ -6,6 +6,7 @@ import { useCatalogSections, useCategories, useProducts } from '../hooks/useCata
 import { CategoryFilter } from '../components/catalog/CategoryFilter';
 import { CategoryBanner } from '../components/catalog/CategoryBanner';
 import { CatalogSection } from '../components/catalog/CatalogSection';
+import { MerchRails } from '../components/catalog/MerchRails';
 import { ProductGrid } from '../components/catalog/ProductGrid';
 import { Pagination } from '../components/catalog/Pagination';
 import { ErrorState } from '../components/ui/ErrorState';
@@ -65,7 +66,11 @@ export function CatalogPage() {
             // key: al cambiar de categoría se remonta y la paginación vuelve a 1
             <FilteredCatalog key={activeCategory.id} category={activeCategory} />
           ) : (
-            <SectionedCatalog />
+            <div className="flex flex-col gap-12">
+              {/* Rails de merchandising (drops / más comprados / stock bajo) */}
+              <MerchRails />
+              <SectionedCatalog />
+            </div>
           )}
         </div>
       </div>

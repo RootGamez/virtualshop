@@ -14,6 +14,17 @@ landingRoutes.get('/', async (c) => {
   return c.json(results.map(mapLanding));
 });
 
+/**
+ * Versión admin del listado: incluye secciones inactivas. Sin esto, el CMS no
+ * podría volver a activar una sección desactivada (el GET público la filtra).
+ */
+landingRoutes.get('/all', requireAuth, requireRole('owner', 'admin'), async (c) => {
+  const { results } = await c.env.DB.prepare(
+    'SELECT * FROM landing_config ORDER BY display_order ASC',
+  ).all<LandingRow>();
+  return c.json(results.map(mapLanding));
+});
+
 landingRoutes.patch('/:sectionKey', requireAuth, requireRole('owner', 'admin'), async (c) => {
   const sectionKey = c.req.param('sectionKey');
   const body = await c.req.json<{ content?: unknown; displayOrder?: number; isActive?: boolean }>();

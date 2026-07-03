@@ -12,6 +12,7 @@ import { slugify } from '../lib/slug';
 import type { AppEnv } from '../env';
 import type { CategoryRow, MediaRow, ProductRow, VariantRow } from '../db/rows';
 import { mapMedia, mapProduct, mapVariant } from '../db/rows';
+import { coverKeysByProduct } from '../db/covers';
 import { authenticate, requireAuth, requireRole } from '../middleware/auth';
 import { conflict, notFound } from '../lib/http-error';
 import { parseBody } from '../lib/validate';
@@ -49,23 +50,7 @@ productRoutes.get('/', async (c) => {
     .all<ProductRow>();
 
   // Imagen de portada por producto: la primera media (menor display_order) de cada uno.
-  const coverByProduct = new Map<number, string>();
-  const ids = results.map((r) => r.id);
-  if (ids.length > 0) {
-    const placeholders = ids.map(() => '?').join(',');
-    const { results: covers } = await c.env.DB.prepare(
-      `SELECT pm.product_id, pm.r2_key
-         FROM product_media pm
-        WHERE pm.product_id IN (${placeholders})
-          AND pm.display_order = (
-            SELECT MIN(display_order) FROM product_media
-             WHERE product_id = pm.product_id
-          )`,
-    )
-      .bind(...ids)
-      .all<{ product_id: number; r2_key: string }>();
-    for (const row of covers) coverByProduct.set(row.product_id, row.r2_key);
-  }
+  const coverByProduct = await coverKeysByProduct(c.env.DB, results.map((r) => r.id));
 
   const body: PaginatedResult<ReturnType<typeof mapProduct>> = {
     items: results.map((r) => ({ ...mapProduct(r), coverImageKey: coverByProduct.get(r.id) ?? null })),
@@ -74,6 +59,83 @@ productRoutes.get('/', async (c) => {
     total: countRow?.total ?? 0,
   };
   return c.json(body);
+});
+
+/* Rutas estáticas ANTES de /:slug — Hono matchea en orden de registro y
+ * /:slug se tragaría "best-sellers"/"low-stock" como si fueran slugs. */
+
+const RAIL_LIMIT_DEFAULT = 8;
+const RAIL_LIMIT_MAX = 24;
+const BEST_SELLER_DAYS_DEFAULT = 30;
+const BEST_SELLER_DAYS_MAX = 365;
+const LOW_STOCK_THRESHOLD_DEFAULT = 5;
+const LOW_STOCK_THRESHOLD_MAX = 50;
+
+function clampQuery(value: string | undefined, fallback: number, max: number): number {
+  const n = Number(value ?? fallback);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(1, Math.trunc(n)));
+}
+
+/**
+ * Best sellers (público): productos activos ordenados por clicks de pedido
+ * (events.type='order_click') en los últimos `days` días. Mismo criterio que
+ * el reporte admin de order-clicks, acotado con LIMIT.
+ */
+productRoutes.get('/best-sellers', async (c) => {
+  const days = clampQuery(c.req.query('days'), BEST_SELLER_DAYS_DEFAULT, BEST_SELLER_DAYS_MAX);
+  const limit = clampQuery(c.req.query('limit'), RAIL_LIMIT_DEFAULT, RAIL_LIMIT_MAX);
+
+  const { results } = await c.env.DB.prepare(
+    `SELECT p.*
+       FROM products p
+       JOIN events e ON e.product_id = p.id
+      WHERE p.is_active = 1
+        AND e.type = 'order_click'
+        AND e.created_at >= datetime('now', ?)
+      GROUP BY p.id
+      ORDER BY COUNT(e.id) DESC
+      LIMIT ?`,
+  )
+    .bind(`-${days} days`, limit)
+    .all<ProductRow>();
+
+  const covers = await coverKeysByProduct(c.env.DB, results.map((r) => r.id));
+  return c.json(
+    results.map((r) => ({ ...mapProduct(r), coverImageKey: covers.get(r.id) ?? null })),
+  );
+});
+
+/**
+ * Stock bajo (público): productos activos cuyo stock total está entre 1 y el
+ * umbral (los agotados no generan urgencia, generan frustración). A propósito
+ * NO se expone el número de stock: el front solo muestra el badge de urgencia.
+ */
+productRoutes.get('/low-stock', async (c) => {
+  const threshold = clampQuery(
+    c.req.query('threshold'),
+    LOW_STOCK_THRESHOLD_DEFAULT,
+    LOW_STOCK_THRESHOLD_MAX,
+  );
+  const limit = clampQuery(c.req.query('limit'), RAIL_LIMIT_DEFAULT, RAIL_LIMIT_MAX);
+
+  const { results } = await c.env.DB.prepare(
+    `SELECT p.*
+       FROM products p
+       JOIN product_variants v ON v.product_id = p.id
+      WHERE p.is_active = 1
+      GROUP BY p.id
+     HAVING SUM(v.stock) BETWEEN 1 AND ?
+      ORDER BY SUM(v.stock) ASC
+      LIMIT ?`,
+  )
+    .bind(threshold, limit)
+    .all<ProductRow>();
+
+  const covers = await coverKeysByProduct(c.env.DB, results.map((r) => r.id));
+  return c.json(
+    results.map((r) => ({ ...mapProduct(r), coverImageKey: covers.get(r.id) ?? null })),
+  );
 });
 
 productRoutes.get('/:slug', async (c) => {

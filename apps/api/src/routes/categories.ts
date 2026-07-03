@@ -12,6 +12,7 @@ import {
 import type { AppEnv } from '../env';
 import type { CategoryRow, ProductRow } from '../db/rows';
 import { mapCategory, mapProduct } from '../db/rows';
+import { coverKeysByProduct } from '../db/covers';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { badRequest, conflict, notFound } from '../lib/http-error';
 import { parseBody } from '../lib/validate';
@@ -61,23 +62,7 @@ categoryRoutes.get('/sections', async (c) => {
 
   // Imagen de portada por producto: la primera media (menor display_order),
   // mismo criterio que el listado de productos.
-  const coverByProduct = new Map<number, string>();
-  const ids = products.map((r) => r.id);
-  if (ids.length > 0) {
-    const placeholders = ids.map(() => '?').join(',');
-    const { results: covers } = await c.env.DB.prepare(
-      `SELECT pm.product_id, pm.r2_key
-         FROM product_media pm
-        WHERE pm.product_id IN (${placeholders})
-          AND pm.display_order = (
-            SELECT MIN(display_order) FROM product_media
-             WHERE product_id = pm.product_id
-          )`,
-    )
-      .bind(...ids)
-      .all<{ product_id: number; r2_key: string }>();
-    for (const row of covers) coverByProduct.set(row.product_id, row.r2_key);
-  }
+  const coverByProduct = await coverKeysByProduct(c.env.DB, products.map((r) => r.id));
 
   const productsByCategory = new Map<number, Product[]>();
   for (const row of products) {
