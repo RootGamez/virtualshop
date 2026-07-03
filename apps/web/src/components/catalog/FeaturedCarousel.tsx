@@ -13,15 +13,23 @@ export function FeaturedCarousel({ products }: FeaturedCarouselProps) {
 
   if (products && products.length === 0) return null;
 
-  const displayProducts = products || Array.from({ length: 4 }, (_, i) => ({
-    id: i,
-    name: '',
-    slug: '',
-    price: 0,
-    finalPrice: 0,
-    isActive: true,
-    coverImageKey: null,
-  } as any));
+  const displayProducts: Product[] =
+    products ??
+    Array.from({ length: 4 }, (_, i) => ({
+      id: i,
+      categoryId: 0,
+      name: '',
+      description: '',
+      slug: '',
+      price: 0,
+      discountType: null,
+      discountValue: null,
+      finalPrice: 0,
+      isActive: true,
+      createdAt: '',
+      updatedAt: '',
+      coverImageKey: null,
+    }));
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
