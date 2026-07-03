@@ -35,6 +35,7 @@ export interface CategoryRow {
   slug: string;
   display_order: number;
   created_at: string;
+  banner_image_key: string | null;
 }
 export const mapCategory = (r: CategoryRow): Category => ({
   id: r.id,
@@ -42,6 +43,7 @@ export const mapCategory = (r: CategoryRow): Category => ({
   slug: r.slug,
   displayOrder: r.display_order,
   createdAt: r.created_at,
+  bannerImageKey: r.banner_image_key,
 });
 
 export interface ProductRow {

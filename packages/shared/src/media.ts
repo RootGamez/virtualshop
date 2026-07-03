@@ -26,8 +26,17 @@ export const ALLOWED_MEDIA_MIME: Record<string, { type: MediaType; ext: string }
   'video/webm': { type: 'video', ext: 'webm' },
 };
 
-/** Prefijo bajo el cual viven todas las claves de media en R2. */
+/** Prefijo bajo el cual viven las claves de media de productos en R2. */
 export const MEDIA_KEY_PREFIX = 'products/';
+
+/** Prefijo bajo el cual viven los banners de categoría en R2. */
+export const CATEGORY_MEDIA_KEY_PREFIX = 'categories/';
+
+/**
+ * Prefijos R2 servibles públicamente. El endpoint público de media solo
+ * entrega objetos bajo estos prefijos, nunca claves arbitrarias del bucket.
+ */
+export const PUBLIC_MEDIA_PREFIXES = [MEDIA_KEY_PREFIX, CATEGORY_MEDIA_KEY_PREFIX] as const;
 
 /** Límite en MB para mensajes de error legibles. */
 export const MEDIA_MAX_UPLOAD_MB = Math.floor(MEDIA_MAX_UPLOAD_BYTES / (1024 * 1024));

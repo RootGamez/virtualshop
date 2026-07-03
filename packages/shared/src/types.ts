@@ -19,6 +19,8 @@ export interface Category {
   slug: string;
   displayOrder: number;
   createdAt: string;
+  /** Clave R2 del banner de la categoría (opcional, gestionado desde el CMS). */
+  bannerImageKey?: string | null;
 }
 
 export type DiscountType = 'percent' | 'fixed' | null;
@@ -38,6 +40,8 @@ export interface Product {
   updatedAt: string;
   /** Clave R2 de la imagen de portada (primera media). Se incluye en el listado del catálogo. */
   coverImageKey?: string | null;
+  /** Suma de stock de todas las variantes. Se incluye en el listado del catálogo. */
+  totalStock?: number;
 }
 
 export interface ProductVariant {

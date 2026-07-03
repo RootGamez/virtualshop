@@ -2,7 +2,7 @@
  * Contratos de request/response de la API (spec §8).
  * Web, CMS y API importan estos tipos para no desincronizarse.
  */
-import type { DiscountType } from './types';
+import type { Category, DiscountType, Product } from './types';
 
 export interface LoginRequest {
   email: string;
@@ -59,6 +59,16 @@ export interface PaginatedResult<T> {
   page: number;
   pageSize: number;
   total: number;
+}
+
+/**
+ * Sección del catálogo: una categoría con una muestra de sus productos
+ * activos (respuesta de GET /categories/sections). Las categorías sin
+ * productos activos no se incluyen.
+ */
+export interface CategorySection {
+  category: Category;
+  products: Product[];
 }
 
 export interface RegisterEventInput {

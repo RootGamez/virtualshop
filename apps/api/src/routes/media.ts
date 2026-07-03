@@ -4,6 +4,7 @@ import {
   MEDIA_KEY_PREFIX,
   MEDIA_MAX_UPLOAD_BYTES,
   MEDIA_MAX_UPLOAD_MB,
+  PUBLIC_MEDIA_PREFIXES,
   mediaOrderSchema,
 } from '@jaw/shared';
 import type { AppEnv } from '../env';
@@ -71,9 +72,12 @@ export const mediaRoutes = new Hono<AppEnv>();
  */
 mediaRoutes.get('/:key{.+}', async (c) => {
   const key = c.req.param('key');
-  // Solo se sirven objetos bajo el prefijo de productos; nunca otras claves del
-  // bucket (evita exponer todo R2 como público a través de este endpoint).
-  if (!key.startsWith(MEDIA_KEY_PREFIX)) throw notFound('Archivo no encontrado');
+  // Solo se sirven objetos bajo los prefijos públicos (productos y banners de
+  // categoría); nunca otras claves del bucket (evita exponer todo R2 como
+  // público a través de este endpoint).
+  if (!PUBLIC_MEDIA_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+    throw notFound('Archivo no encontrado');
+  }
 
   const object = await c.env.MEDIA.get(key);
   if (!object) throw notFound('Archivo no encontrado');
