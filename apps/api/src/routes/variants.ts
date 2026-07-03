@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
-import type { CreateVariantInput, UpdateVariantInput } from '@jaw/shared';
+import { createVariantSchema, updateVariantSchema } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { VariantRow } from '../db/rows';
 import { mapVariant } from '../db/rows';
 import { requireAuth, requireRole } from '../middleware/auth';
-import { badRequest, conflict, notFound } from '../lib/http-error';
+import { conflict, notFound } from '../lib/http-error';
+import { parseBody } from '../lib/validate';
 
 // Montado dos veces en index.ts: bajo /products/:id/variants (list/create)
 // y bajo /variants/:id (update/delete), según spec §8.
@@ -25,8 +26,7 @@ productVariantRoutes.post(
   requireRole('owner', 'admin'),
   async (c) => {
     const productId = Number(c.req.param('id'));
-    const body = await c.req.json<CreateVariantInput>();
-    if (!body?.size || !body?.color) throw badRequest('size y color son requeridos');
+    const body = await parseBody(c, createVariantSchema);
 
     const product = await c.env.DB.prepare('SELECT id FROM products WHERE id = ?')
       .bind(productId)
@@ -53,7 +53,7 @@ export const variantRoutes = new Hono<AppEnv>();
 
 variantRoutes.patch('/:id', requireAuth, requireRole('owner', 'admin'), async (c) => {
   const id = Number(c.req.param('id'));
-  const body = await c.req.json<UpdateVariantInput>();
+  const body = await parseBody(c, updateVariantSchema);
 
   const current = await c.env.DB.prepare('SELECT * FROM product_variants WHERE id = ?')
     .bind(id)

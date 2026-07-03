@@ -1,19 +1,20 @@
 import { Hono } from 'hono';
 import {
+  createProductSchema,
   fromFixedAmount,
   fromPercent,
   noDiscount,
-  type CreateProductInput,
+  updateProductSchema,
   type PaginatedResult,
   type ProductDetail,
-  type UpdateProductInput,
 } from '@jaw/shared';
 import { slugify } from '../lib/slug';
 import type { AppEnv } from '../env';
 import type { CategoryRow, MediaRow, ProductRow, VariantRow } from '../db/rows';
 import { mapMedia, mapProduct, mapVariant } from '../db/rows';
 import { authenticate, requireAuth, requireRole } from '../middleware/auth';
-import { badRequest, conflict, notFound } from '../lib/http-error';
+import { conflict, notFound } from '../lib/http-error';
+import { parseBody } from '../lib/validate';
 
 export const productRoutes = new Hono<AppEnv>();
 
@@ -119,10 +120,7 @@ productRoutes.get('/:slug', async (c) => {
 });
 
 productRoutes.post('/', requireAuth, requireRole('owner', 'admin'), async (c) => {
-  const body = await c.req.json<CreateProductInput>();
-  if (!body?.name || !body?.categoryId || body.price == null) {
-    throw badRequest('categoryId, name y price son requeridos');
-  }
+  const body = await parseBody(c, createProductSchema);
   const slug = body.slug?.trim() || slugify(body.name);
 
   const existing = await c.env.DB.prepare('SELECT id FROM products WHERE slug = ?')
@@ -155,7 +153,7 @@ productRoutes.post('/', requireAuth, requireRole('owner', 'admin'), async (c) =>
 
 productRoutes.patch('/:id', requireAuth, requireRole('owner', 'admin'), async (c) => {
   const id = Number(c.req.param('id'));
-  const body = await c.req.json<UpdateProductInput>();
+  const body = await parseBody(c, updateProductSchema);
 
   const current = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?')
     .bind(id)

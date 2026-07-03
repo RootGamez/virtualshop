@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
-import type { CreateCategoryInput } from '@jaw/shared';
+import { createCategorySchema, updateCategorySchema } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { CategoryRow } from '../db/rows';
 import { mapCategory } from '../db/rows';
 import { requireAuth, requireRole } from '../middleware/auth';
-import { badRequest, conflict, notFound } from '../lib/http-error';
+import { conflict, notFound } from '../lib/http-error';
+import { parseBody } from '../lib/validate';
 
 export const categoryRoutes = new Hono<AppEnv>();
 
@@ -16,8 +17,7 @@ categoryRoutes.get('/', async (c) => {
 });
 
 categoryRoutes.post('/', requireAuth, requireRole('owner', 'admin'), async (c) => {
-  const body = await c.req.json<CreateCategoryInput>();
-  if (!body?.name || !body?.slug) throw badRequest('name y slug son requeridos');
+  const body = await parseBody(c, createCategorySchema);
 
   const existing = await c.env.DB.prepare('SELECT id FROM categories WHERE slug = ?')
     .bind(body.slug)
@@ -34,7 +34,7 @@ categoryRoutes.post('/', requireAuth, requireRole('owner', 'admin'), async (c) =
 
 categoryRoutes.patch('/:id', requireAuth, requireRole('owner', 'admin'), async (c) => {
   const id = Number(c.req.param('id'));
-  const body = await c.req.json<Partial<CreateCategoryInput>>();
+  const body = await parseBody(c, updateCategorySchema);
 
   const current = await c.env.DB.prepare('SELECT * FROM categories WHERE id = ?')
     .bind(id)

@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@jaw/shared": "workspace:*",
-    "hono": "^4.6.13"
+    "hono": "^4.6.13",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",

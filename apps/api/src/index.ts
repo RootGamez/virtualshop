@@ -60,6 +60,15 @@ app.onError((err, c) => {
   if (err instanceof HttpError) {
     return c.json({ error: err.message }, err.status);
   }
+  // Backstop para violaciones de constraint de D1 (carreras TOCTOU en slug/email,
+  // FK inválida): traducir a 4xx en vez de un 500 genérico.
+  const message = err instanceof Error ? err.message : '';
+  if (message.includes('UNIQUE constraint failed')) {
+    return c.json({ error: 'Ya existe un registro con esos datos' }, 409);
+  }
+  if (message.includes('FOREIGN KEY constraint failed') || message.includes('constraint failed')) {
+    return c.json({ error: 'Datos inválidos o referencia inexistente' }, 400);
+  }
   console.error(err);
   return c.json({ error: 'Error interno del servidor' }, 500);
 });

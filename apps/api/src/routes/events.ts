@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
-import type { RegisterEventInput } from '@jaw/shared';
+import { registerEventSchema } from '@jaw/shared';
 import type { AppEnv } from '../env';
-import { badRequest, notFound } from '../lib/http-error';
+import { notFound } from '../lib/http-error';
+import { parseBody } from '../lib/validate';
 import { rateLimit } from '../middleware/rate-limit';
 
 export const eventRoutes = new Hono<AppEnv>();
@@ -9,14 +10,7 @@ export const eventRoutes = new Hono<AppEnv>();
 // Endpoint público: rate limit por IP para evitar flood de inserts (analíticas
 // envenenadas + costo de escritura en D1).
 eventRoutes.post('/', rateLimit((env) => env.EVENTS_LIMITER), async (c) => {
-  const body = await c.req.json<RegisterEventInput>();
-  if (!body?.productId || !body?.type) throw badRequest('productId y type son requeridos');
-  if (body.type !== 'view' && body.type !== 'order_click') {
-    throw badRequest('type debe ser "view" u "order_click"');
-  }
-
-  const productId = Number(body.productId);
-  if (!Number.isInteger(productId) || productId <= 0) throw badRequest('productId inválido');
+  const { productId, type } = await parseBody(c, registerEventSchema);
 
   // Verificar que el producto exista antes de insertar: evita basura en la tabla
   // events y filas que romperían los JOIN de los reportes.
@@ -26,7 +20,7 @@ eventRoutes.post('/', rateLimit((env) => env.EVENTS_LIMITER), async (c) => {
   if (!product) throw notFound('Producto no encontrado');
 
   await c.env.DB.prepare('INSERT INTO events (product_id, type) VALUES (?, ?)')
-    .bind(productId, body.type)
+    .bind(productId, type)
     .run();
   return c.body(null, 201);
 });

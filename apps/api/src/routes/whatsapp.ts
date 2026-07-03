@@ -1,9 +1,11 @@
 import { Hono } from 'hono';
+import { whatsappUpdateSchema } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { WhatsappRow } from '../db/rows';
 import { mapWhatsapp } from '../db/rows';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { badRequest, notFound } from '../lib/http-error';
+import { parseBody } from '../lib/validate';
 
 export const whatsappRoutes = new Hono<AppEnv>();
 
@@ -16,7 +18,7 @@ whatsappRoutes.get('/', async (c) => {
 });
 
 whatsappRoutes.patch('/', requireAuth, requireRole('owner', 'admin'), async (c) => {
-  const body = await c.req.json<{ phoneNumber?: string; messageTemplate?: string }>();
+  const body = await parseBody(c, whatsappUpdateSchema);
   const current = await c.env.DB.prepare('SELECT * FROM whatsapp_config ORDER BY id LIMIT 1').first<
     WhatsappRow
   >();

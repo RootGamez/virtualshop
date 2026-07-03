@@ -1,11 +1,12 @@
 import { Hono } from 'hono';
-import type { Role } from '@jaw/shared';
+import { createUserSchema, updateUserSchema } from '@jaw/shared';
 import type { AppEnv } from '../env';
 import type { UserRow } from '../db/rows';
 import { mapUser } from '../db/rows';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { hashPassword } from '../lib/password';
-import { badRequest, conflict, forbidden, notFound } from '../lib/http-error';
+import { conflict, forbidden, notFound } from '../lib/http-error';
+import { parseBody } from '../lib/validate';
 
 // Toda esta sección es solo-owner (spec §6: "el owner administra a los otros usuarios").
 export const userRoutes = new Hono<AppEnv>();
@@ -19,10 +20,7 @@ userRoutes.get('/', async (c) => {
 });
 
 userRoutes.post('/', async (c) => {
-  const body = await c.req.json<{ email: string; password: string; name: string; role: Role }>();
-  if (!body?.email || !body?.password || !body?.name || !body?.role) {
-    throw badRequest('email, password, name y role son requeridos');
-  }
+  const body = await parseBody(c, createUserSchema);
 
   const existing = await c.env.DB.prepare('SELECT id FROM users WHERE email = ?')
     .bind(body.email.toLowerCase())
@@ -40,7 +38,7 @@ userRoutes.post('/', async (c) => {
 
 userRoutes.patch('/:id', async (c) => {
   const id = Number(c.req.param('id'));
-  const body = await c.req.json<{ name?: string; role?: Role; password?: string }>();
+  const body = await parseBody(c, updateUserSchema);
 
   const current = await c.env.DB.prepare('SELECT * FROM users WHERE id = ?')
     .bind(id)

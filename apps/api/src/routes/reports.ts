@@ -7,37 +7,40 @@ reportRoutes.use('*', requireAuth, requireRole('owner', 'admin'));
 
 /** Rango de fechas opcional, mismo formato en los 4 reportes (spec §8). */
 function dateRange(c: { req: { query: (k: string) => string | undefined } }) {
-  const from = c.req.query('from'); // ISO date
-  const to = c.req.query('to');
-  return { from: from ?? '0000-01-01', to: to ?? '9999-12-31' };
+  const from = c.req.query('from') ?? '0000-01-01'; // ISO date, inclusivo
+  const to = c.req.query('to') ?? '9999-12-31';
+  // Se compara por rango sobre la columna cruda ('YYYY-MM-DD HH:MM:SS') en vez de
+  // envolverla con date(), para poder usar idx_events_created_at. El límite
+  // superior incluye todo el día indicado.
+  return { from, toEnd: `${to} 23:59:59` };
 }
 
 reportRoutes.get('/order-clicks', async (c) => {
-  const { from, to } = dateRange(c);
+  const { from, toEnd } = dateRange(c);
   const { results } = await c.env.DB.prepare(
     `SELECT p.id as productId, p.name, COUNT(e.id) as clicks
      FROM events e
      JOIN products p ON p.id = e.product_id
-     WHERE e.type = 'order_click' AND date(e.created_at) BETWEEN date(?) AND date(?)
+     WHERE e.type = 'order_click' AND e.created_at >= ? AND e.created_at <= ?
      GROUP BY p.id
      ORDER BY clicks DESC`,
   )
-    .bind(from, to)
+    .bind(from, toEnd)
     .all();
   return c.json(results);
 });
 
 reportRoutes.get('/most-viewed', async (c) => {
-  const { from, to } = dateRange(c);
+  const { from, toEnd } = dateRange(c);
   const { results } = await c.env.DB.prepare(
     `SELECT p.id as productId, p.name, COUNT(e.id) as views
      FROM events e
      JOIN products p ON p.id = e.product_id
-     WHERE e.type = 'view' AND date(e.created_at) BETWEEN date(?) AND date(?)
+     WHERE e.type = 'view' AND e.created_at >= ? AND e.created_at <= ?
      GROUP BY p.id
      ORDER BY views DESC`,
   )
-    .bind(from, to)
+    .bind(from, toEnd)
     .all();
   return c.json(results);
 });
