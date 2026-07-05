@@ -130,7 +130,7 @@ create-owner-remote: ## Crea el owner en producción. Uso: make create-owner-rem
 	echo "Owner creado en producción: $(EMAIL)"
 
 deploy-api: ## Despliega el Worker (API) a Cloudflare
-	cd $(API_DIR) && pnpm deploy
+	cd $(API_DIR) && pnpm run deploy
 
 build-web: ## Compila la tienda pública para producción (dist/)
 	cd $(WEB_DIR) && pnpm build

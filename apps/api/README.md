@@ -33,7 +33,7 @@ pnpm wrangler d1 create jaw-project           # una sola vez (si no existe); cop
 pnpm wrangler r2 bucket create jaw-project     # una sola vez (si no existe)
 pnpm wrangler secret put JWT_SECRET --env production
 pnpm db:migrations:apply:prod
-pnpm deploy
+pnpm run deploy
 ```
 
 ## Estructura

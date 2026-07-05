@@ -53,4 +53,4 @@ create-owner-remote: ## Uso: make create-owner-remote EMAIL=x PASSWORD=y NAME="Z
 	pnpm wrangler d1 execute jaw-project --env production --remote --command "$$SQL"
 
 deploy: ## Despliega el Worker de producción a Cloudflare (wrangler deploy --env production)
-	pnpm deploy
+	pnpm run deploy
