@@ -60,10 +60,9 @@ name = "jaw-project-api"
 [env.production.vars]
 ENVIRONMENT = "production"
 # CORS: orígenes permitidos (se aceptan varios separados por coma).
-# Mientras se prueba con los dominios *.pages.dev, agregarlos acá junto al
-# dominio final. Ej: "https://jaw-web.pages.dev,https://jawproject.online"
-WEB_ORIGIN = "https://jawproject.online"
-CMS_ORIGIN = "https://cms.jawproject.online"
+# Se incluyen los dominios *.workers.dev de prueba junto al dominio final.
+WEB_ORIGIN = "https://jaw-project.anthonygamez2858.workers.dev,https://jawproject.online"
+CMS_ORIGIN = "https://jaw-cms.anthonygamez2858.workers.dev,https://cms.jawproject.online"
 
 [[env.production.d1_databases]]
 binding = "DB"
