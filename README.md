@@ -125,14 +125,12 @@ Todo el flujo de abajo se puede hacer una sola vez (setup inicial) y después el
 
 ```bash
 make cf-login          # abre el navegador, iniciá sesión con tu cuenta de Cloudflare
-make db-create          # crea la D1 de producción y escribe el database_id en apps/api/wrangler.toml
-make r2-create           # crea el bucket R2 "virtualshop-media"
+make db-create          # crea la D1 de producción "jaw-project" (solo si no existe todavía)
+make r2-create           # crea el bucket R2 "jaw-project" (solo si no existe todavía)
 make secrets              # te pide el valor de JWT_SECRET de producción (usá uno distinto al de local)
 ```
 
-`make db-create` intenta detectar el `database_id` que devuelve Wrangler y lo escribe solo en `apps/api/wrangler.toml`. Si no lo logra detectar (mensaje distinto en una versión nueva de Wrangler), el comando te avisa y copiás el ID a mano en esa misma línea del archivo.
-
-Después de que `wrangler.toml` quede actualizado, **commiteá ese cambio** (el `database_id` no es secreto, solo identifica el recurso).
+La configuración de producción vive en el bloque `[env.production]` de `apps/api/wrangler.toml`: ahí están el `database_id` de la D1 `jaw-project`, el bucket R2 y los orígenes CORS (`WEB_ORIGIN`/`CMS_ORIGIN`). Si creás una base nueva, copiá el `database_id` que devuelve Wrangler en ese bloque (el id no es secreto, solo identifica el recurso).
 
 ### 5.2. Migrar y crear el owner en producción
 
@@ -147,7 +145,7 @@ make create-owner-remote EMAIL=vos@ejemplo.com PASSWORD="otraContraseñaDistinta
 make deploy-api
 ```
 
-Esto te da una URL tipo `https://virtualshop-api.<tu-subdominio>.workers.dev`. Guardala: la vas a necesitar en el paso siguiente para `apps/web` y `apps/cms`.
+Esto despliega el worker `jaw-project-api` (entorno `production` de wrangler) y te da una URL tipo `https://jaw-project-api.<tu-subdominio>.workers.dev`. Guardala: la vas a necesitar en el paso siguiente para `apps/web` y `apps/cms`.
 
 ### 5.4. Desplegar `apps/web` y `apps/cms` (Cloudflare Pages)
 
@@ -157,17 +155,19 @@ La forma recomendada para este proyecto (sin CLI, todo desde el dashboard, ideal
 2. Elegí el repo `RootGamez/virtualshop`.
 3. Creá **dos proyectos de Pages separados**, uno para cada app, con esta configuración:
 
-   **Proyecto `virtualshop-web`:**
+   **Proyecto `jaw-web` (tienda pública):**
    - Root directory: `apps/web`
    - Build command: `pnpm install && pnpm build`
    - Build output directory: `dist`
-   - Variable de entorno: `VITE_API_BASE_URL` = la URL del Worker desplegado en 5.3
+   - Variables de entorno:
+     - `VITE_API_BASE_URL` = la URL del Worker desplegado en 5.3
+     - `VITE_MEDIA_BASE_URL` = la URL pública del bucket R2 (`https://pub-XXXX.r2.dev` o tu dominio propio sobre R2)
 
-   **Proyecto `virtualshop-cms`:**
+   **Proyecto `jaw-cms` (panel admin):**
    - Root directory: `apps/cms`
    - Build command: `pnpm install && pnpm build`
    - Build output directory: `dist`
-   - Variable de entorno: `VITE_API_BASE_URL` = la misma URL del Worker
+   - Variables de entorno: `VITE_API_BASE_URL` y `VITE_MEDIA_BASE_URL` = las mismas de arriba
 
 4. Guardar. Cloudflare va a buildear y desplegar automáticamente en cada `git push` a la rama principal — no hace falta volver a tocar esto.
 
@@ -175,7 +175,14 @@ La forma recomendada para este proyecto (sin CLI, todo desde el dashboard, ideal
 
 ### 5.5. Actualizar CORS en la API
 
-En `apps/api/src/index.ts`, la configuración de CORS tiene un `origin: '*'` con un TODO. Una vez que tengas los dominios finales de Pages (o tu dominio propio), reemplazalo por la lista real de orígenes permitidos y volvé a correr `make deploy-api`.
+El CORS es una allowlist que se lee de las vars `WEB_ORIGIN` y `CMS_ORIGIN` en el bloque `[env.production]` de `apps/api/wrangler.toml`. Cada una acepta **varios orígenes separados por coma**, útil mientras conviven los dominios `*.pages.dev` de prueba y el definitivo, por ejemplo:
+
+```toml
+WEB_ORIGIN = "https://jaw-web.pages.dev,https://jawproject.online"
+CMS_ORIGIN = "https://jaw-cms.pages.dev,https://cms.jawproject.online"
+```
+
+Cuando tengas las URLs reales de Pages (o el dominio propio), ponelas ahí y volvé a correr `make deploy-api`. Si el origen del navegador no está en la lista, el frontend ve errores de CORS en la consola.
 
 ### 5.6. Dominio propio (opcional)
 
@@ -197,5 +204,6 @@ Configurable desde **Workers & Pages → tu proyecto → Custom domains** tanto 
 - **`wrangler dev` no levanta / error de D1 local**: borrá `apps/api/.wrangler` y volvé a correr `make db-migrate-local`.
 - **Login del CMS da 401 siempre**: revisá que `apps/api/.dev.vars` tenga un `JWT_SECRET` (no vacío) y que `apps/cms/.env` apunte al mismo `apps/api` que tenés corriendo.
 - **Las imágenes no cargan en `apps/web`/`apps/cms`**: falta configurar `VITE_MEDIA_BASE_URL` apuntando al dominio público del bucket R2 (o a un dominio custom sobre R2). Ver `apps/web/README.md`.
-- **`make db-create` no detectó el `database_id`**: copialo a mano desde la salida del comando a `apps/api/wrangler.toml`, en la línea `database_id = "..."`.
+- **El deploy de la API falla por la D1**: verificá que el `database_id` del bloque `[env.production]` de `apps/api/wrangler.toml` coincida con el de `pnpm wrangler d1 list`.
+- **La web/cms desplegadas ven errores de CORS**: el origen del navegador tiene que estar en `WEB_ORIGIN`/`CMS_ORIGIN` del bloque `[env.production]` (acepta varios separados por coma) — editá y volvé a correr `make deploy-api`.
 - **Verificar la capa gratuita de Cloudflare**: revisar límites actuales de D1/R2/Workers/Pages en el dashboard antes de que el tráfico crezca (pendiente abierto en `PLAN.md`).

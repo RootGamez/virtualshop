@@ -1,0 +1,10 @@
+# Headers de seguridad servidos por Cloudflare Pages (este archivo se copia a dist/).
+# Documentación: https://developers.cloudflare.com/pages/configuration/headers/
+# La CSP permite: Google Fonts (index.html), imágenes/videos del bucket R2 (https:),
+# la API vía fetch (connect-src https:) y blob:/data: que usa Three.js.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'

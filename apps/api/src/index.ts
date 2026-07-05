@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { secureHeaders } from 'hono/secure-headers';
 import type { AppEnv, Bindings } from './env';
 import { HttpError } from './lib/http-error';
 
@@ -18,17 +19,41 @@ const app = new Hono<AppEnv>().basePath('/api');
 
 /**
  * Orígenes permitidos por CORS. En producción se toman de WEB_ORIGIN/CMS_ORIGIN
- * (vars de wrangler). En desarrollo se agregan los puertos locales de web y cms.
+ * (vars de wrangler); cada una acepta varios orígenes separados por coma
+ * (útil mientras conviven el dominio *.pages.dev de prueba y el definitivo).
+ * En desarrollo se agregan los puertos locales de web y cms.
  */
 function allowedOrigins(env: Bindings): string[] {
-  const list: string[] = [];
-  if (env.WEB_ORIGIN) list.push(env.WEB_ORIGIN);
-  if (env.CMS_ORIGIN) list.push(env.CMS_ORIGIN);
+  const list = [env.WEB_ORIGIN, env.CMS_ORIGIN]
+    .filter((value): value is string => Boolean(value))
+    .flatMap((value) => value.split(','))
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
   if (env.ENVIRONMENT === 'development') {
     list.push('http://localhost:5173', 'http://localhost:5174');
   }
   return list;
 }
+
+/**
+ * Guard de configuración: en producción, si faltan JWT_SECRET o los orígenes
+ * CORS, es preferible fallar explícito con 500 que operar mal configurado
+ * (JWT sin secret o un panel/tienda bloqueados en silencio por CORS).
+ */
+app.use('*', async (c, next) => {
+  if (c.env.ENVIRONMENT === 'production') {
+    if (!c.env.JWT_SECRET) {
+      return c.json({ error: 'Configuración inválida: falta JWT_SECRET' }, 500);
+    }
+    if (allowedOrigins(c.env).length === 0) {
+      return c.json({ error: 'Configuración inválida: faltan WEB_ORIGIN/CMS_ORIGIN' }, 500);
+    }
+  }
+  await next();
+});
+
+// Headers de seguridad en todas las respuestas del API (nosniff, no-frame, etc.).
+app.use('*', secureHeaders({ crossOriginResourcePolicy: false }));
 
 app.use('*', (c, next) =>
   cors({

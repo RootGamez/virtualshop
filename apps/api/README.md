@@ -26,11 +26,13 @@ pnpm dev
 
 ## Despliegue
 
+La configuración de producción vive en el bloque `[env.production]` de `wrangler.toml` (worker `jaw-project-api`, D1 y R2 `jaw-project`, orígenes CORS).
+
 ```bash
-pnpm wrangler d1 create virtualshop-db       # una sola vez, copiar database_id a wrangler.toml
-pnpm wrangler r2 bucket create virtualshop-media
-pnpm wrangler secret put JWT_SECRET
-pnpm db:migrations:apply:remote
+pnpm wrangler d1 create jaw-project           # una sola vez (si no existe); copiar database_id a [env.production]
+pnpm wrangler r2 bucket create jaw-project     # una sola vez (si no existe)
+pnpm wrangler secret put JWT_SECRET --env production
+pnpm db:migrations:apply:prod
 pnpm deploy
 ```
 

@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env production",
     "typecheck": "tsc --noEmit",
     "db:migrations:apply:local": "wrangler d1 migrations apply virtualshop-db --local",
-    "db:migrations:apply:remote": "wrangler d1 migrations apply virtualshop-db --remote",
+    "db:migrations:apply:prod": "wrangler d1 migrations apply jaw-project --env production --remote",
     "db:seed:local": "wrangler d1 execute virtualshop-db --local --file=./seed.sql",
     "create-owner": "tsx scripts/create-owner.ts"
   },

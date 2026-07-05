@@ -35,31 +35,22 @@ create-owner: ## Uso: make create-owner EMAIL=x PASSWORD=y NAME="Z"
 cf-login: ## Inicia sesión en Cloudflare
 	pnpm wrangler login
 
-db-create: ## Crea la D1 de producción y actualiza wrangler.toml
-	OUTPUT=$$(pnpm wrangler d1 create virtualshop-db)
-	echo "$$OUTPUT"
-	DB_ID=$$(echo "$$OUTPUT" | grep -oE '"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"' | head -1 | tr -d '"')
-	if [ -n "$$DB_ID" ]; then \
-	  sed -i.bak "s/database_id = \"REPLACE_WITH_D1_DATABASE_ID\"/database_id = \"$$DB_ID\"/" wrangler.toml; \
-	  rm -f wrangler.toml.bak; \
-	  echo "wrangler.toml actualizado con database_id=$$DB_ID"; \
-	else \
-	  echo "Copiá el database_id a mano en wrangler.toml"; \
-	fi
+db-create: ## Crea la D1 de producción "jaw-project" (si no existe; el id va en [env.production] de wrangler.toml)
+	pnpm wrangler d1 create jaw-project
 
-r2-create: ## Crea el bucket R2 de producción
-	pnpm wrangler r2 bucket create virtualshop-media
+r2-create: ## Crea el bucket R2 de producción "jaw-project" (si no existe)
+	pnpm wrangler r2 bucket create jaw-project
 
 secrets: ## Configura JWT_SECRET de producción
-	pnpm wrangler secret put JWT_SECRET
+	pnpm wrangler secret put JWT_SECRET --env production
 
-migrate-remote: ## Aplica migraciones en D1 de producción
-	pnpm wrangler d1 migrations apply virtualshop-db --remote
+migrate-remote: ## Aplica migraciones en D1 de producción (jaw-project)
+	pnpm wrangler d1 migrations apply jaw-project --env production --remote
 
 create-owner-remote: ## Uso: make create-owner-remote EMAIL=x PASSWORD=y NAME="Z"
 	test -n "$(EMAIL)" && test -n "$(PASSWORD)" && test -n "$(NAME)" || { echo 'Uso: make create-owner-remote EMAIL=owner@x.com PASSWORD=algo NAME="Nombre"'; exit 1; }
 	SQL=$$(pnpm exec tsx scripts/create-owner.ts "$(EMAIL)" "$(PASSWORD)" "$(NAME)" | tail -1)
-	pnpm wrangler d1 execute virtualshop-db --remote --command "$$SQL"
+	pnpm wrangler d1 execute jaw-project --env production --remote --command "$$SQL"
 
-deploy: ## Despliega el Worker a Cloudflare
+deploy: ## Despliega el Worker de producción a Cloudflare (wrangler deploy --env production)
 	pnpm deploy
