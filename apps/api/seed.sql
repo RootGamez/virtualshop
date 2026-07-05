@@ -6,7 +6,7 @@ INSERT INTO whatsapp_config (phone_number, message_template)
 VALUES ('5215500000000', 'Hola 👋 Me interesa este producto: *[nombre]* — Precio: [precio]. [link]');
 
 INSERT INTO landing_config (section_key, content, display_order, is_active) VALUES
-  ('hero', '{"title":"VirtualShop","subtitle":"Tu tienda, a un mensaje de distancia","ctaLabel":"Ver catálogo"}', 0, 1),
+  ('hero', '{"title":"JAW Project","subtitle":"Ropa importada con otro flow","ctaLabel":"Ver catálogo"}', 0, 1),
   ('about', '{"title":"Sobre nosotros","body":"Contenido editable desde el CMS."}', 1, 1),
   ('social', '{"instagram":"","tiktok":"","facebook":""}', 2, 1);
 
