@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   BarChart3,
+  CircleUser,
   LayoutTemplate,
   LogOut,
   MessageCircle,
@@ -28,6 +29,7 @@ const LINKS: NavItem[] = [
   { to: '/whatsapp', label: 'WhatsApp', icon: MessageCircle, end: false },
   { to: '/reportes', label: 'Reportes', icon: BarChart3, end: false },
   { to: '/usuarios', label: 'Usuarios', icon: Users, end: false, ownerOnly: true },
+  { to: '/perfil', label: 'Mi perfil', icon: CircleUser, end: false },
 ];
 
 interface SidebarBodyProps {

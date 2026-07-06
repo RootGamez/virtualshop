@@ -13,6 +13,23 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface UpdateProfileInput {
+  name: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/**
+ * Cambiar la contraseña invalida todos los tokens anteriores (token_version);
+ * se devuelve un token nuevo para que la sesión actual siga viva.
+ */
+export interface ChangePasswordResponse {
+  token: string;
+}
+
 export interface CreateCategoryInput {
   name: string;
   slug: string;

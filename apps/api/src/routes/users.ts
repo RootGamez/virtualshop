@@ -36,6 +36,15 @@ userRoutes.post('/', async (c) => {
   return c.json(mapUser(result!), 201);
 });
 
+/** true si el usuario dado es el único owner que queda (no se puede degradar ni eliminar). */
+async function isLastOwner(db: D1Database, user: UserRow): Promise<boolean> {
+  if (user.role !== 'owner') return false;
+  const row = await db
+    .prepare("SELECT COUNT(*) AS count FROM users WHERE role = 'owner'")
+    .first<{ count: number }>();
+  return (row?.count ?? 0) <= 1;
+}
+
 userRoutes.patch('/:id', async (c) => {
   const id = Number(c.req.param('id'));
   const body = await parseBody(c, updateUserSchema);
@@ -45,11 +54,26 @@ userRoutes.patch('/:id', async (c) => {
     .first<UserRow>();
   if (!current) throw notFound('Usuario no encontrado');
 
+  // Degradar al último owner dejaría el panel sin nadie que administre usuarios.
+  const isDemotion = body.role === 'admin' && current.role === 'owner';
+  if (isDemotion && (await isLastOwner(c.env.DB, current))) {
+    throw forbidden('No podés degradar al último owner');
+  }
+
   const passwordHash = body.password ? await hashPassword(body.password) : current.password_hash;
+  // Cambiar la contraseña (o degradar el rol) invalida las sesiones abiertas
+  // del usuario: token_version + 1 mata cualquier JWT emitido antes.
+  const bumpTokenVersion = Boolean(body.password) || isDemotion;
   const updated = await c.env.DB.prepare(
-    'UPDATE users SET name = ?, role = ?, password_hash = ? WHERE id = ? RETURNING *',
+    'UPDATE users SET name = ?, role = ?, password_hash = ?, token_version = token_version + ? WHERE id = ? RETURNING *',
   )
-    .bind(body.name ?? current.name, body.role ?? current.role, passwordHash, id)
+    .bind(
+      body.name ?? current.name,
+      body.role ?? current.role,
+      passwordHash,
+      bumpTokenVersion ? 1 : 0,
+      id,
+    )
     .first<UserRow>();
   return c.json(mapUser(updated!));
 });

@@ -6,6 +6,7 @@ import { useMutation } from '../hooks/useMutation';
 import { useSessionStore } from '../store/sessionStore';
 import { api } from '../lib/api';
 import { toastSuccess } from '../store/toastStore';
+import { formatDateTime } from '../lib/format';
 import { TextField, SelectField } from '../components/ui/FormField';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -69,9 +70,16 @@ export function UsersPage() {
                     <p className="text-sm font-semibold text-text">
                       {user.name} <span className="font-normal text-text-muted">· {user.email}</span>
                     </p>
-                    <Badge variant={user.role === 'owner' ? 'primary' : 'outline'} className="w-fit">
-                      {user.role}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={user.role === 'owner' ? 'primary' : 'outline'} className="w-fit">
+                        {user.role}
+                      </Badge>
+                      <span className="text-xs text-text-muted">
+                        {user.lastLoginAt
+                          ? `Último acceso: ${formatDateTime(user.lastLoginAt)}`
+                          : 'Nunca inició sesión'}
+                      </span>
+                    </div>
                   </div>
                   {user.id !== currentUser?.id && (
                     <button

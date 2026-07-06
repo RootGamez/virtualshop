@@ -11,6 +11,8 @@ export interface User {
   name: string;
   role: Role;
   createdAt: string;
+  /** Último login exitoso (null si nunca inició sesión desde que existe la columna). */
+  lastLoginAt: string | null;
 }
 
 export interface Category {

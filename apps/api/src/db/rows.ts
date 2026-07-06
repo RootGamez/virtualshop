@@ -20,6 +20,9 @@ export interface UserRow {
   name: string;
   role: 'owner' | 'admin';
   created_at: string;
+  /** Se incrementa al cambiar la contraseña: invalida los JWT firmados con la versión anterior. */
+  token_version: number;
+  last_login_at: string | null;
 }
 export const mapUser = (r: UserRow): User => ({
   id: r.id,
@@ -27,6 +30,7 @@ export const mapUser = (r: UserRow): User => ({
   name: r.name,
   role: r.role,
   createdAt: r.created_at,
+  lastLoginAt: r.last_login_at,
 });
 
 export interface CategoryRow {

@@ -8,9 +8,19 @@ import { z } from 'zod';
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/**
+ * El máximo acota el costo de PBKDF2 en el server: sin tope, un body con una
+ * contraseña gigante fuerza 100k iteraciones sobre esa entrada (vector de DoS).
+ */
+const PASSWORD_MAX = 128;
+const passwordSchema = z
+  .string()
+  .min(8, 'la contraseña debe tener al menos 8 caracteres')
+  .max(PASSWORD_MAX, `la contraseña no puede superar ${PASSWORD_MAX} caracteres`);
+
 export const loginSchema = z.object({
   email: z.string().email('email inválido'),
-  password: z.string().min(1, 'password requerido'),
+  password: z.string().min(1, 'password requerido').max(PASSWORD_MAX, 'password inválido'),
 });
 
 export const createCategorySchema = z.object({
@@ -99,7 +109,7 @@ export const registerEventSchema = z.object({
 
 export const createUserSchema = z.object({
   email: z.string().email('email inválido'),
-  password: z.string().min(8, 'la contraseña debe tener al menos 8 caracteres'),
+  password: passwordSchema,
   name: z.string().min(1, 'name requerido'),
   role: z.enum(['owner', 'admin']),
 });
@@ -107,7 +117,17 @@ export const createUserSchema = z.object({
 export const updateUserSchema = z.object({
   name: z.string().min(1).optional(),
   role: z.enum(['owner', 'admin']).optional(),
-  password: z.string().min(8, 'la contraseña debe tener al menos 8 caracteres').optional(),
+  password: passwordSchema.optional(),
+});
+
+/** Edición del perfil propio (cualquier rol): solo el nombre; email y rol los gestiona el owner. */
+export const updateProfileSchema = z.object({
+  name: z.string().min(1, 'name requerido'),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'la contraseña actual es requerida').max(PASSWORD_MAX),
+  newPassword: passwordSchema,
 });
 
 export const whatsappUpdateSchema = z.object({

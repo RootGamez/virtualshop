@@ -6,6 +6,7 @@ import { CategoriesPage } from './pages/CategoriesPage';
 import { LandingEditorPage } from './pages/LandingEditorPage';
 import { WhatsappConfigPage } from './pages/WhatsappConfigPage';
 import { UsersPage } from './pages/UsersPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { ReportsPage } from './pages/ReportsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RequireAuth } from './components/auth/RequireAuth';
@@ -71,6 +72,14 @@ export default function App() {
           element={
             <Protected>
               <ReportsPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <Protected>
+              <ProfilePage />
             </Protected>
           }
         />

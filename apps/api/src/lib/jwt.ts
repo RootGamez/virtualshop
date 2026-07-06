@@ -5,13 +5,24 @@ const EXPIRY_SECONDS = 60 * 60 * 24; // 1 dia (la revalidación de rol vive en e
 const ALG = 'HS256';
 
 export interface JwtPayload extends AuthUser {
+  /**
+   * Versión de sesión del usuario al firmar. Si no coincide con users.token_version
+   * (que se incrementa al cambiar la contraseña), el token queda inválido.
+   * Opcional por compatibilidad: tokens viejos sin el campo cuentan como versión 0.
+   */
+  tokenVersion?: number;
   exp: number;
   [key: string]: unknown;
 }
 
-export async function signToken(user: AuthUser, secret: string): Promise<string> {
+export async function signToken(
+  user: AuthUser,
+  secret: string,
+  tokenVersion: number,
+): Promise<string> {
   const payload: JwtPayload = {
     ...user,
+    tokenVersion,
     exp: Math.floor(Date.now() / 1000) + EXPIRY_SECONDS,
   };
   return sign(payload, secret, ALG);
